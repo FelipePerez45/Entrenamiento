@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Entrenamiento · Coach10</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <span class="brand-mark">EL CUERPO<span class="brand-10">10</span></span>
+    <span class="brand-sub" id="brand-sub">Entrenamiento · Local</span>
+  </div>
+  <button id="btn-menu" class="icon-btn" aria-label="Más opciones">⋯</button>
+</header>
+
+<main id="app-main">
+
+  <!-- ============= TAB: ENTRENO ============= -->
+  <section class="tab-panel" data-tab="entreno">
+    <div class="tabla-selector">
+      <label class="tabla-label">Tabla activa</label>
+      <select id="tabla-select"></select>
+    </div>
+
+    <details class="info-block">
+      <summary>📘 Recomendaciones</summary>
+      <div id="recomendaciones"></div>
+    </details>
+
+    <div class="chips-row" id="dia-chips"></div>
+
+    <div id="dia-titulo" class="section-title"></div>
+    <div id="ejercicios-list" class="ejercicios-list"></div>
+
+    <div class="floating-save-spacer"></div>
+  </section>
+
+  <!-- ============= TAB: HISTORIAL ============= -->
+  <section class="tab-panel hidden" data-tab="historial">
+    <h2 class="section-title">Resumen</h2>
+    <div id="stats-grid" class="stats-grid"></div>
+
+    <h2 class="section-title">Sesiones</h2>
+    <div id="historial-list" class="historial-list"></div>
+  </section>
+
+  <!-- ============= TAB: TABLAS ============= -->
+  <section class="tab-panel hidden" data-tab="tablas">
+    <h2 class="section-title">Mis tablas</h2>
+    <p class="hint">Cada semana el entrenador te envía una nueva tabla. Aquí las gestionas y eliges cuál está activa.</p>
+    <div id="tablas-list" class="combos-list"></div>
+    <div class="actions">
+      <button id="btn-nueva-tabla" class="btn primary block">+ Nueva tabla</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============= MODAL: Detalle de ejercicio ============= -->
+<div id="ej-modal" class="modal hidden">
+  <div class="modal-content modal-full">
+    <div class="modal-head">
+      <button id="ej-close" class="icon-btn">‹</button>
+      <span id="ej-title" class="modal-title">Ejercicio</span>
+      <button id="ej-delete-session" class="text-btn" style="visibility:hidden;">Borrar sesión</button>
+    </div>
+
+    <div class="modal-body">
+      <div id="ej-video-wrap" class="video-wrap"></div>
+
+      <div id="ej-info" class="info-pill"></div>
+
+      <div class="date-bar pretty" style="margin-top:14px;">
+        <button id="ej-day-prev" class="icon-btn">‹</button>
+        <div class="date-display">
+          <div id="ej-date-pretty" class="date-pretty"></div>
+          <input type="date" id="ej-date" class="date-picker">
+        </div>
+        <button id="ej-day-next" class="icon-btn">›</button>
+      </div>
+      <div class="date-actions">
+        <button id="ej-day-today" class="text-btn">📍 Hoy</button>
+      </div>
+
+      <div id="ej-series-wrap"></div>
+
+      <div class="form-row">
+        <label>Notas</label>
+        <textarea id="ej-notas" rows="2" placeholder="Cómo te sentiste, ajustes, sensaciones…"></textarea>
+      </div>
+
+      <div class="actions">
+        <button id="ej-save" class="btn primary block">Guardar sesión</button>
+      </div>
+
+      <h3 class="section-title" style="margin-top:18px;">Sesiones anteriores</h3>
+      <div id="ej-historial" class="historial-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============= MODAL: Editar tabla / día / ejercicio ============= -->
+<div id="edit-tabla-modal" class="modal hidden">
+  <div class="modal-content modal-full">
+    <div class="modal-head">
+      <button id="edit-tabla-close" class="icon-btn">‹</button>
+      <span class="modal-title">Editar tabla</span>
+      <span style="width:40px;"></span>
+    </div>
+    <div class="modal-body" id="edit-tabla-body"></div>
+  </div>
+</div>
+
+<!-- Tab bar -->
+<nav class="tab-bar">
+  <button class="tab-btn active" data-go="entreno"> <span>🏋️</span><span>Entreno</span></button>
+  <button class="tab-btn"        data-go="historial"><span>📊</span><span>Historial</span></button>
+  <button class="tab-btn"        data-go="tablas">  <span>📋</span><span>Tablas</span></button>
+</nav>
+
+<!-- Menú modal -->
+<div id="menu-modal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Opciones</h3>
+    <button class="btn block" id="btn-export">📥 Exportar BD (.sqlite)</button>
+    <label class="btn block ghost">
+      📤 Importar BD
+      <input type="file" id="file-import" accept=".sqlite,.db,application/x-sqlite3" hidden>
+    </label>
+    <button class="btn block danger" id="btn-reset">🗑️ Reiniciar a Tabla 1 de fábrica</button>
+    <button class="btn block" id="btn-close-menu">Cerrar</button>
+    <p class="hint center">
+      Entrenador: César Fitness · @elcuerpo10
+    </p>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Loading -->
+<div id="loading" class="loading">
+  <div class="loader"></div>
+  <p>Cargando…</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
