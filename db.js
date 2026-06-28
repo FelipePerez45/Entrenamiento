@@ -105,10 +105,10 @@ const DB = (() => {
     const existing = await idbLoadBlob();
     _db = existing ? new _SQL.Database(existing) : new _SQL.Database();
     _db.exec(SCHEMA);
-    // Si está vacío, sembrar Tabla 1
+    // Si está vacío, sembrar todas las tablas (MES 1, MES 2, …)
     const c = exec('SELECT COUNT(*) AS n FROM tablas')[0].n;
     if (c === 0) {
-      await seedFromObject(window.ENTRENO_SEED.TABLA_1);
+      await seedTodas();
     }
     await persist();
     return _db;
@@ -140,6 +140,13 @@ const DB = (() => {
   }
 
   // ---- Seed ------------------------------------------------------------
+
+  // Siembra todas las tablas definidas en la semilla, en orden (MES 1, MES 2, …).
+  async function seedTodas() {
+    const seed = window.ENTRENO_SEED || {};
+    const tablas = [seed.TABLA_1, seed.TABLA_2, seed.TABLA_3, seed.TABLA_4].filter(Boolean);
+    for (const t of tablas) await seedFromObject(t);
+  }
 
   async function seedFromObject(tabla) {
     run(
@@ -400,7 +407,7 @@ const DB = (() => {
     _db.close();
     _db = new _SQL.Database();
     _db.exec(SCHEMA);
-    await seedFromObject(window.ENTRENO_SEED.TABLA_1);
+    await seedTodas();
     await persist();
   }
 

@@ -1,12 +1,15 @@
-// Semilla con la Tabla 1 del entrenador (PDF "Tabla 1 GYM - Felipe Alejandro Pérez 21_05_26").
-// Cada semana se pueden añadir nuevas tablas desde la propia app.
+// Semilla de las tablas del entrenador, separadas por MES (MES 1, MES 2, …).
+//   · MES 1 — Tabla 1 (PDF "Tabla 1 GYM - Felipe Alejandro Pérez 21_05_26").
+//   · MES 2 — Tabla 2 (PDF "Tabla 2 GYM - Felipe Alejandro Pérez 21_06_26").
+// Cada mes se añade una nueva tabla aquí (SEED_TABLA_N) y a window.ENTRENO_SEED;
+// también se pueden crear/editar nuevas tablas desde la propia app.
 // Los nombres de los ejercicios son inferidos por el contenido visual del vídeo
 // (el PDF original no los etiqueta), se pueden editar desde la app.
 
 const SEED_TABLA_1 = {
-  nombre:  'Tabla 1',
+  nombre:  'MES 1 — Tabla 1',
   fecha:   '2026-05-21',
-  activa:  1,
+  activa:  0,
   recomendaciones: {
     tempos: '1 segundo para la positiva, 3 segundos para la negativa.',
     positiva: 'Momento del ejercicio en el que contraes el músculo.',
@@ -116,4 +119,120 @@ const SEED_TABLA_1 = {
   ],
 };
 
-window.ENTRENO_SEED = { TABLA_1: SEED_TABLA_1 };
+// Tabla 2 del entrenador — MES 2 (PDF "Tabla 2 GYM - Felipe Alejandro Pérez 21_06_26").
+// Mismos criterios que la Tabla 1: los nombres de los ejercicios se infieren del
+// contenido visual del vídeo (el PDF no los etiqueta) y se pueden editar desde la app.
+// Esquema de repeticiones de fuerza: 10 / 8 / 8 (ver recomendaciones).
+const SEED_TABLA_2 = {
+  nombre:  'MES 2 — Tabla 2',
+  fecha:   '2026-06-21',
+  activa:  1,
+  recomendaciones: {
+    tempos: '1 segundo para la positiva, 3 segundos para la negativa.',
+    positiva: 'Momento del ejercicio en el que contraes el músculo.',
+    negativa: 'Momento excéntrico en el que aguantas la carga a la posición inicial.',
+    nivel_esfuerzo: [
+      { serie: 1, descripcion: 'FALLO − 2' },
+      { serie: 2, descripcion: 'FALLO − 1' },
+      { serie: 3, descripcion: 'FALLO' },
+    ],
+    descanso: '60 segundos entre series.',
+    notas: [
+      'Subir de peso siempre que sea posible cumpliendo las leyes anteriores.',
+      'Repeticiones por serie en los ejercicios de fuerza: 10 / 8 / 8.',
+    ],
+  },
+  dias: [
+    {
+      numero: 1,
+      nombre: 'Día 1 — Cardio',
+      tipo:   'cardio',
+      ejercicios: [
+        { orden: 1, nombre: 'Cardio en bici', tipo: 'cardio', duracion_min: 40,
+          video_url: 'https://vimeo.com/536327098/fef4e62f02' },
+      ],
+    },
+    {
+      numero: 2,
+      nombre: 'Día 2 — Fullbody',
+      tipo:   'fullbody',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — remo', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/538089277/dd99b93922' },
+        { orden: 2, nombre: 'Press banca con barra', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/536294267/903843ae8e' },
+        { orden: 3, nombre: 'Jalón al pecho', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/527236731/9422ac73d7' },
+        { orden: 4, nombre: 'Elevación lateral con cable', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/781412956/c9cdb757d1' },
+        { orden: 5, nombre: 'Curl bíceps con mancuernas', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/560448080/83bfa1033e' },
+        { orden: 6, nombre: 'Curl bíceps con cable (martillo)', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/527844115/685067787b' },
+        { orden: 7, nombre: 'Prensa de piernas', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/546834877/ba1fa16ec8' },
+        { orden: 8, nombre: 'Abdominales', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://youtu.be/cSgu0Gj7v40' },
+        { orden: 9, nombre: 'Cardio final — bici', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/536327098/fef4e62f02' },
+      ],
+    },
+    {
+      numero: 3,
+      nombre: 'Día 3 — Tren superior',
+      tipo:   'fullbody',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — elíptica', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/527297408/2fdf8afc90' },
+        { orden: 2, nombre: 'Press banca con barra', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/546842517/4a8db9bf81' },
+        { orden: 3, nombre: 'Press inclinado con mancuernas', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/536311053/1abcefc180' },
+        { orden: 4, nombre: 'Jalón al pecho', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/527236731/9422ac73d7' },
+        { orden: 5, nombre: 'Jalón al pecho (agarre abierto)', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/527239313/3006b13227' },
+        { orden: 6, nombre: 'Curl bíceps en banco inclinado', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/576223475/c91ce4787d' },
+        { orden: 7, nombre: 'Pullover con mancuerna', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/536335568/70768f29bb' },
+        { orden: 8, nombre: 'Cardio final — bici', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/536327098/fef4e62f02' },
+      ],
+    },
+    {
+      numero: 4,
+      nombre: 'Día 4 — Tren inferior',
+      tipo:   'fullbody',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — elíptica', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/527297408/2fdf8afc90' },
+        { orden: 2, nombre: 'Sentadilla con barra', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/527196450/4d7287d7a9' },
+        { orden: 3, nombre: 'Curl femoral', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/527220815/54e98d8957' },
+        { orden: 4, nombre: 'Zancadas con mancuernas', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/536328747/2e82c6abcb' },
+        { orden: 5, nombre: 'Hip thrust (empuje de cadera)', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/554713172/d3cf073d80' },
+        { orden: 6, nombre: 'Zancadas en multipower (Smith)', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://vimeo.com/592107454/4cde12a8a6' },
+        { orden: 7, nombre: 'Oblicuos', tipo: 'series', series: 3, repeticiones: 10,
+          video_url: 'https://youtu.be/xq6MHZgI1XE' },
+        { orden: 8, nombre: 'Cardio final — bici', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/536327098/fef4e62f02' },
+      ],
+    },
+    {
+      numero: 5,
+      nombre: 'Día 5 — Cardio',
+      tipo:   'cardio',
+      ejercicios: [
+        { orden: 1, nombre: 'Cardio en bici', tipo: 'cardio', duracion_min: 40,
+          video_url: 'https://vimeo.com/536327098/fef4e62f02' },
+      ],
+    },
+  ],
+};
+
+window.ENTRENO_SEED = { TABLA_1: SEED_TABLA_1, TABLA_2: SEED_TABLA_2 };
