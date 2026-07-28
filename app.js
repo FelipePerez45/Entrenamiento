@@ -9,6 +9,10 @@ const STATE = {
   ejSeries: [],                // [{ num, repeticiones, peso_kg }]
 };
 
+// Máximo de series que se pueden registrar en una sesión.
+// La Tabla 3 planifica 4 series, así que se deja margen para una extra.
+const MAX_SERIES = 6;
+
 const $  = (sel, el = document) => el.querySelector(sel);
 const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
 
@@ -51,6 +55,59 @@ function vimeoEmbedUrl(url) {
   const id = m[1];
   const hash = m[2];
   return `https://player.vimeo.com/video/${id}${hash ? ('?h=' + hash) : ''}`;
+}
+
+function youtubeEmbedUrl(url) {
+  if (!url) return null;
+  // Soporta youtu.be/ID, youtube.com/watch?v=ID, /embed/ID y /shorts/ID
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+  if (!m) return null;
+  return `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0`;
+}
+
+// Devuelve la URL de reproducción incrustada (Vimeo o YouTube) o null si no se reconoce.
+function videoEmbedUrl(url) {
+  return vimeoEmbedUrl(url) || youtubeEmbedUrl(url);
+}
+
+// Nombre de la plataforma, para el enlace "abrir en…" de respaldo.
+function videoPlataforma(url) {
+  if (!url) return null;
+  if (/vimeo\.com/.test(url))            return 'Vimeo';
+  if (/youtu\.be|youtube\.com/.test(url)) return 'YouTube';
+  return 'el navegador';
+}
+
+// ---- Repeticiones objetivo por serie ----------------------------
+// La tabla puede traer un esquema por serie en recomendaciones.reps_por_serie
+// (ej. Tabla 3: [12, 12, 10, 8]). Si no lo trae, se usa el valor único
+// planificado del ejercicio para todas las series.
+
+function tablaIdDeEjercicio(e) {
+  const d = (e && e.dia_id != null) ? DB.getDia(e.dia_id) : null;
+  return d ? d.tabla_id : STATE.tablaId;
+}
+
+function repsObjetivo(e) {
+  const total = e.series_planificadas || 3;
+  const base  = e.repeticiones_planificadas || 10;
+  const t = DB.getTabla(tablaIdDeEjercicio(e));
+  const esq = (t && t.recomendaciones && Array.isArray(t.recomendaciones.reps_por_serie))
+    ? t.recomendaciones.reps_por_serie.map(Number).filter(n => Number.isFinite(n) && n > 0)
+    : [];
+  return Array.from({ length: total }, (_, i) => {
+    if (!esq.length) return base;
+    return esq[i] != null ? esq[i] : esq[esq.length - 1];
+  });
+}
+
+// Texto resumido: "4 × 12 reps" o "4 series × 12/12/10/8 reps"
+function repsObjetivoTexto(e, corto = false) {
+  const reps  = repsObjetivo(e);
+  const total = reps.length;
+  const iguales = reps.every(r => r === reps[0]);
+  const detalle = iguales ? `${reps[0]}` : reps.join('/');
+  return corto ? `${total} × ${detalle} reps` : `${total} series × ${detalle} reps`;
 }
 
 function toast(msg, kind = 'ok') {
@@ -182,7 +239,7 @@ function ejercicioCard(e) {
 
   const infoLine = e.tipo === 'cardio'
     ? `<span class="ej-tag cardio">CARDIO</span> <span>${e.duracion_min || 0} min</span>`
-    : `<span class="ej-tag series">SERIES</span> <span>${e.series_planificadas || 3} × ${e.repeticiones_planificadas || 10} reps</span>`;
+    : `<span class="ej-tag series">SERIES</span> <span>${repsObjetivoTexto(e, true)}</span>`;
 
   let lastData = '';
   if (last) {
@@ -247,23 +304,30 @@ function renderEjercicioModal() {
 
   $('#ej-title').textContent = e.nombre;
 
-  // Vídeo
-  const embed = vimeoEmbedUrl(e.video_url);
+  // Vídeo (Vimeo o YouTube)
+  const embed = videoEmbedUrl(e.video_url);
   const vWrap = $('#ej-video-wrap');
   if (embed) {
     vWrap.innerHTML = `<iframe src="${embed}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  } else if (e.video_url) {
+    vWrap.innerHTML = `<div class="no-video">Vídeo no incrustable — usa el enlace de abajo</div>`;
   } else {
     vWrap.innerHTML = `<div class="no-video">Sin vídeo disponible</div>`;
   }
 
   // Info
   const info = $('#ej-info');
+  // Enlace directo de respaldo, siempre disponible si el ejercicio tiene vídeo
+  const enlace = e.video_url
+    ? `<a class="pill" href="${e.video_url}" target="_blank" rel="noopener">▶️ Ver en ${videoPlataforma(e.video_url)} ↗</a>`
+    : '';
   if (e.tipo === 'cardio') {
-    info.innerHTML = `<span class="pill">🚴 Cardio · ${e.duracion_min || 0} min recomendados</span>`;
+    info.innerHTML = `<span class="pill">🚴 Cardio · ${e.duracion_min || 0} min recomendados</span>${enlace}`;
   } else {
     info.innerHTML = `
-      <span class="pill">💪 ${e.series_planificadas || 3} series × ${e.repeticiones_planificadas || 10} reps</span>
+      <span class="pill">💪 ${repsObjetivoTexto(e)}</span>
       <span class="pill">⏱️ 1s positiva · 3s negativa</span>
+      ${enlace}
     `;
   }
 
@@ -304,18 +368,28 @@ function renderSeriesSection(e) {
 
   // Series
   const seriesActuales = STATE.ejSeries;
+  const objetivo = repsObjetivo(e);           // ej. [12, 12, 10, 8]
   if (!seriesActuales.length) {
-    // Pre-rellenar con las series planificadas
+    // Pre-rellenar con las series planificadas (3, 4, … según la tabla)
     const plan = e.series_planificadas || 3;
     for (let i = 1; i <= plan; i++) {
       seriesActuales.push({ num: i, repeticiones: null, peso_kg: null });
     }
   }
+  // Repeticiones recomendadas de cada serie registrada (si hay más series de las
+  // planificadas, se mantiene la última del esquema).
+  const objetivoDe = num => objetivo[num - 1] != null ? objetivo[num - 1] : objetivo[objetivo.length - 1];
+
+  const esfuerzo = (DB.getTabla(tablaIdDeEjercicio(e))?.recomendaciones?.nivel_esfuerzo) || [];
+  const esfuerzoDe = num => (esfuerzo.find(n => Number(n.serie) === num) || {}).descripcion || '';
 
   wrap.innerHTML = `
     <h3 class="section-title" style="margin-top:14px;">Series</h3>
+    <p class="hint" style="margin:-4px 0 10px;">
+      🎯 Objetivo: ${objetivo.map((r, i) => `S${i + 1} <strong>${r}</strong>`).join(' · ')} reps
+    </p>
     <div class="series-actions">
-      <button class="btn ghost" id="btn-add-serie" ${seriesActuales.length >= 5 ? 'disabled' : ''}>+ Añadir serie</button>
+      <button class="btn ghost" id="btn-add-serie" ${seriesActuales.length >= MAX_SERIES ? 'disabled' : ''}>+ Añadir serie</button>
       <button class="btn ghost" id="btn-copy-last">📋 Copiar última sesión</button>
     </div>
     <div class="series-table">
@@ -327,9 +401,10 @@ function renderSeriesSection(e) {
       </div>
       ${seriesActuales.map((s, idx) => `
         <div class="series-row" data-idx="${idx}">
-          <div class="ser-num">${s.num}</div>
+          <div class="ser-num" title="${esfuerzoDe(s.num)}">${s.num}</div>
           <input type="number" min="0" max="100" step="1" data-field="repeticiones"
-                 value="${s.repeticiones != null ? s.repeticiones : ''}" placeholder="reps">
+                 value="${s.repeticiones != null ? s.repeticiones : ''}"
+                 placeholder="${objetivoDe(s.num)} reps">
           <input type="number" min="0" max="500" step="0.5" data-field="peso_kg"
                  value="${s.peso_kg != null ? s.peso_kg : ''}" placeholder="kg">
           <button class="ser-rm" data-rm="${idx}" aria-label="Quitar serie">×</button>
@@ -357,7 +432,7 @@ function renderSeriesSection(e) {
   });
 
   $('#btn-add-serie').onclick = () => {
-    if (STATE.ejSeries.length >= 5) return;
+    if (STATE.ejSeries.length >= MAX_SERIES) return;
     STATE.ejSeries.push({ num: STATE.ejSeries.length + 1, repeticiones: null, peso_kg: null });
     renderSeriesSection(e);
   };
@@ -682,7 +757,7 @@ function renderEditorDays(t) {
               <input type="number" data-field="series_planificadas" data-id="${e.id}" value="${e.series_planificadas || 3}" placeholder="series" style="flex:0 0 80px;padding:6px 8px;font-size:13px;">
               <input type="number" data-field="repeticiones_planificadas" data-id="${e.id}" value="${e.repeticiones_planificadas || 10}" placeholder="reps" style="flex:0 0 80px;padding:6px 8px;font-size:13px;">
             `}
-            <input type="url" data-field="video_url" data-id="${e.id}" value="${e.video_url || ''}" placeholder="https://vimeo.com/..." style="flex:1 1 100%;padding:6px 8px;font-size:13px;">
+            <input type="url" data-field="video_url" data-id="${e.id}" value="${e.video_url || ''}" placeholder="https://vimeo.com/… o https://youtu.be/…" style="flex:1 1 100%;padding:6px 8px;font-size:13px;">
           </div>
         `).join('')}
       </div>
@@ -790,7 +865,7 @@ async function main() {
     goTab(STATE.tab);
   };
   $('#btn-reset').onclick = async () => {
-    if (!confirm('Esto borrará TODO y dejará solo la Tabla 1 de fábrica. ¿Seguro?')) return;
+    if (!confirm('Esto borrará TODO y dejará solo las tablas de fábrica (Tabla 1, 2 y 3). ¿Seguro?')) return;
     await DB.reset();
     toast('Reiniciado');
     closeMenu();

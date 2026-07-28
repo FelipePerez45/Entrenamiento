@@ -59,6 +59,13 @@ CREATE TABLE IF NOT EXISTS series (
   FOREIGN KEY (registro_id) REFERENCES registros(id) ON DELETE CASCADE
 );
 
+-- Clave/valor interno: registra qué tablas de la semilla ya se han cargado,
+-- para poder añadir tablas nuevas (MES 3, MES 4, …) sin tocar lo ya registrado.
+CREATE TABLE IF NOT EXISTS meta (
+  clave TEXT PRIMARY KEY,
+  valor TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_dias_tabla       ON dias(tabla_id);
 CREATE INDEX IF NOT EXISTS idx_ejercicios_dia   ON ejercicios(dia_id);
 CREATE INDEX IF NOT EXISTS idx_registros_ej     ON registros(ejercicio_id);
@@ -105,11 +112,10 @@ const DB = (() => {
     const existing = await idbLoadBlob();
     _db = existing ? new _SQL.Database(existing) : new _SQL.Database();
     _db.exec(SCHEMA);
-    // Si está vacío, sembrar todas las tablas (MES 1, MES 2, …)
-    const c = exec('SELECT COUNT(*) AS n FROM tablas')[0].n;
-    if (c === 0) {
-      await seedTodas();
-    }
+    // Siembra las tablas de la semilla que aún no estén cargadas (MES 1, MES 2, MES 3, …).
+    // En una BD vacía carga todas; en una BD existente sólo añade las nuevas,
+    // conservando las sesiones ya registradas.
+    await sembrarPendientes();
     await persist();
     return _db;
   }
@@ -139,13 +145,55 @@ const DB = (() => {
     return exec('SELECT last_insert_rowid() AS id')[0].id;
   }
 
+  // ---- Meta (clave/valor) ---------------------------------------------
+
+  function metaGet(clave) {
+    const r = exec('SELECT valor FROM meta WHERE clave = ?', [clave])[0];
+    return r ? r.valor : null;
+  }
+
+  function metaSet(clave, valor) {
+    run('INSERT INTO meta (clave, valor) VALUES (?,?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor',
+        [clave, String(valor)]);
+  }
+
   // ---- Seed ------------------------------------------------------------
+
+  // Claves de la semilla ordenadas por número de tabla (TABLA_1, TABLA_2, …).
+  function seedClaves() {
+    const seed = window.ENTRENO_SEED || {};
+    return Object.keys(seed)
+      .filter(k => seed[k])
+      .sort((a, b) => (parseInt(a.replace(/\D/g, ''), 10) || 0) - (parseInt(b.replace(/\D/g, ''), 10) || 0));
+  }
 
   // Siembra todas las tablas definidas en la semilla, en orden (MES 1, MES 2, …).
   async function seedTodas() {
     const seed = window.ENTRENO_SEED || {};
-    const tablas = [seed.TABLA_1, seed.TABLA_2, seed.TABLA_3, seed.TABLA_4].filter(Boolean);
-    for (const t of tablas) await seedFromObject(t);
+    for (const clave of seedClaves()) {
+      const id = await seedFromObject(seed[clave]);
+      metaSet('seed:' + clave, '1');
+      if (seed[clave].activa) await setTablaActiva(id);
+    }
+    await persist();
+  }
+
+  // Igual que seedTodas, pero salta las tablas que ya se cargaron alguna vez
+  // (o que ya existen por nombre). Así se pueden añadir tablas nuevas a la
+  // semilla y aparecerán al abrir la app sin perder el historial.
+  async function sembrarPendientes() {
+    const seed = window.ENTRENO_SEED || {};
+    for (const clave of seedClaves()) {
+      if (metaGet('seed:' + clave)) continue;
+      const tabla = seed[clave];
+      const yaExiste = exec('SELECT id FROM tablas WHERE nombre = ?', [tabla.nombre]).length > 0;
+      if (!yaExiste) {
+        const id = await seedFromObject(tabla);
+        if (tabla.activa) await setTablaActiva(id);
+      }
+      metaSet('seed:' + clave, '1');
+    }
+    await persist();
   }
 
   async function seedFromObject(tabla) {
@@ -168,6 +216,7 @@ const DB = (() => {
       }
     }
     await persist();
+    return tablaId;
   }
 
   // ---- Tablas ----------------------------------------------------------
