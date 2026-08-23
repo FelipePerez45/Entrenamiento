@@ -2,6 +2,7 @@
 //   · MES 1 — Tabla 1 (PDF "Tabla 1 GYM - Felipe Alejandro Pérez 21_05_26").
 //   · MES 2 — Tabla 2 (PDF "Tabla 2 GYM - Felipe Alejandro Pérez 21_06_26").
 //   · MES 3 — Tabla 3 (PDF "Tabla 3 GYM - Felipe Alejandro Pérez 19_07_26").
+//   · MES 4 — Tabla 4 (PDF "Tabla 4 GYM - Felipe Alejandro Pérez 15_08_26").
 // Cada mes se añade una nueva tabla aquí (SEED_TABLA_N) y a window.ENTRENO_SEED;
 // también se pueden crear/editar nuevas tablas desde la propia app.
 // Los nombres de los ejercicios son inferidos por el contenido visual del vídeo
@@ -371,4 +372,138 @@ const SEED_TABLA_3 = {
   ],
 };
 
-window.ENTRENO_SEED = { TABLA_1: SEED_TABLA_1, TABLA_2: SEED_TABLA_2, TABLA_3: SEED_TABLA_3 };
+// Tabla 4 del entrenador — MES 4 (PDF "Tabla 4 GYM - Felipe Alejandro Pérez 15_08_26").
+// Mantiene las 4 series con esquema 12 / 12 / 10 / 8 y los 50 segundos de descanso.
+// La sesión de abdominales del Día 4 es la excepción indicada en el PDF: 4 series
+// al fallo, llegando hasta donde permita la movilidad.
+const SEED_TABLA_4 = {
+  nombre:  'MES 4 — Tabla 4',
+  fecha:   '2026-08-15',
+  activa:  1,
+  recomendaciones: {
+    tempos: '1 segundo para la positiva, 3 segundos para la negativa.',
+    positiva: 'Momento del ejercicio en el que contraes el músculo.',
+    negativa: 'Momento excéntrico en el que aguantas la carga a la posición inicial.',
+    nivel_esfuerzo: [
+      { serie: 1, descripcion: 'FALLO − 2' },
+      { serie: 2, descripcion: 'FALLO − 1' },
+      { serie: 3, descripcion: 'FALLO' },
+      { serie: 4, descripcion: 'FALLO + 1' },
+    ],
+    descanso: '50 segundos entre series.',
+    reps_por_serie: [12, 12, 10, 8],
+    notas: [
+      'Subir de peso siempre que sea posible cumpliendo las leyes anteriores.',
+      'Repeticiones por serie en los ejercicios de fuerza: 12 / 12 / 10 / 8.',
+      'Excepción — elevaciones de piernas en banco inclinado: 4 series al fallo, hasta donde permita la movilidad.',
+    ],
+  },
+  dias: [
+    {
+      numero: 1,
+      nombre: 'Día 1 — Pectoral / Tríceps / Hombros / Abs',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — elíptica', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/527297408/2fdf8afc90' },
+        { orden: 2, nombre: 'Press banca con barra', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536294267/903843ae8e' },
+        { orden: 3, nombre: 'Press banca con mancuernas', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536298440/b81cc03ac0' },
+        { orden: 4, nombre: 'Extensión de tríceps en polea', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527844115/685067787b' },
+        { orden: 5, nombre: 'Press inclinado con mancuernas', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536311053/1abcefc180' },
+        { orden: 6, nombre: 'Remo al mentón con barra', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536313674/7efe5ba623' },
+        { orden: 7, nombre: 'Cardio final — escaladora (ritmo intenso)', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 2,
+      nombre: 'Día 2 — Espalda / Bíceps / Hombros',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — remo', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/538089277/dd99b93922' },
+        { orden: 2, nombre: 'Jalón al pecho', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527236731/9422ac73d7' },
+        { orden: 3, nombre: 'Jalón al pecho (agarre neutro)', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527190465/e9783c826e' },
+        { orden: 4, nombre: 'Jalón unilateral con brazo recto en polea', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536318087/d2ae4ad7f1' },
+        { orden: 5, nombre: 'Curl de bíceps con barra', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/554731058/f9b2db2141' },
+        { orden: 6, nombre: 'Curl de bíceps sentado con mancuernas', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536322759/4ce8cda887' },
+        { orden: 7, nombre: 'Face pull en polea', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536324671/0667d24ed9' },
+        { orden: 8, nombre: 'Cardio final — escaladora (ritmo intenso)', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 3,
+      nombre: 'Día 3 — Cuádriceps / Isquios / Glúteos / Gemelos',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — remo', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/538089277/dd99b93922' },
+        { orden: 2, nombre: 'Prensa de piernas', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527195170/dfc45e22fd' },
+        { orden: 3, nombre: 'Zancadas con mancuernas', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536328747/2e82c6abcb' },
+        { orden: 4, nombre: 'Curl femoral sentado', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527220815/54e98d8957' },
+        { orden: 5, nombre: 'Peso muerto rumano con barra', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536330537/5d08f0ce10' },
+        { orden: 6, nombre: 'Extensión de cuádriceps en máquina', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527233725/ded517b55a' },
+        { orden: 7, nombre: 'Oblicuos', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://youtu.be/xq6MHZgI1XE' },
+        { orden: 8, nombre: 'Cardio final — escaladora (ritmo intenso)', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 4,
+      nombre: 'Día 4 — Bíceps / Tríceps / Abs',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — remo', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/538089277/dd99b93922' },
+        { orden: 2, nombre: 'Curl de bíceps sentado en banco inclinado', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527244462/2a04bb66b4' },
+        { orden: 3, nombre: 'Curl alterno de bíceps con mancuernas', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536340217/cc38141374' },
+        { orden: 4, nombre: 'Extensión de tríceps en polea', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/527844115/685067787b' },
+        { orden: 5, nombre: 'Extensión de tríceps sobre la cabeza con mancuerna', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536333209/0e95c15454' },
+        { orden: 6, nombre: 'Extensión de tríceps tumbado con mancuerna', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/536335568/70768f29bb' },
+        { orden: 7, nombre: 'Elevaciones de piernas en banco inclinado — al fallo', tipo: 'series', series: 4, repeticiones: 12,
+          video_url: 'https://vimeo.com/651535167/8abc3aa131' },
+        { orden: 8, nombre: 'Cardio final — escaladora (ritmo intenso)', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 5,
+      nombre: 'Día 5 — Cardio',
+      tipo:   'cardio',
+      ejercicios: [
+        { orden: 1, nombre: 'Cardio en escaladora', tipo: 'cardio', duracion_min: 45,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+  ],
+};
+
+window.ENTRENO_SEED = {
+  TABLA_1: SEED_TABLA_1,
+  TABLA_2: SEED_TABLA_2,
+  TABLA_3: SEED_TABLA_3,
+  TABLA_4: SEED_TABLA_4,
+};

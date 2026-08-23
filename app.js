@@ -865,7 +865,7 @@ async function main() {
     goTab(STATE.tab);
   };
   $('#btn-reset').onclick = async () => {
-    if (!confirm('Esto borrará TODO y dejará solo las tablas de fábrica (Tabla 1, 2 y 3). ¿Seguro?')) return;
+    if (!confirm('Esto borrará TODO y dejará solo las tablas de fábrica (Tabla 1, 2, 3 y 4). ¿Seguro?')) return;
     await DB.reset();
     toast('Reiniciado');
     closeMenu();
