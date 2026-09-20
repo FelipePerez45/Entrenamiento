@@ -263,6 +263,7 @@ input[type="number"], input[type="text"], input[type="search"], textarea {
 }
 .ej-tag.cardio { background: rgba(0,212,255,.15); color: var(--accent); }
 .ej-tag.series { background: rgba(255,149,0,.15); color: var(--warn); }
+.ej-tag.rutina { background: rgba(52,199,89,.15);  color: var(--ok); }
 .ej-card-arrow { color: var(--text-dim); font-size: 18px; }
 .ej-last-data {
   font-size: 11px;
@@ -437,6 +438,16 @@ textarea { resize: vertical; min-height: 60px; }
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
+}
+/* Aviso del entrenador para un ejercicio concreto */
+.info-pill .pill.nota {
+  flex: 1 1 100%;
+  border-radius: 12px;
+  border-color: rgba(255,149,0,.45);
+  background: rgba(255,149,0,.10);
+  color: var(--warn);
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 /* ===== Date bar bonita ===== */

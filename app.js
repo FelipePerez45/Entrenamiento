@@ -10,7 +10,7 @@ const STATE = {
 };
 
 // Máximo de series que se pueden registrar en una sesión.
-// La Tabla 3 planifica 4 series, así que se deja margen para una extra.
+// Las tablas planifican hasta 4 series, así que se deja margen para dos extra.
 const MAX_SERIES = 6;
 
 const $  = (sel, el = document) => el.querySelector(sel);
@@ -79,35 +79,98 @@ function videoPlataforma(url) {
 }
 
 // ---- Repeticiones objetivo por serie ----------------------------
-// La tabla puede traer un esquema por serie en recomendaciones.reps_por_serie
-// (ej. Tabla 3: [12, 12, 10, 8]). Si no lo trae, se usa el valor único
-// planificado del ejercicio para todas las series.
+// Prioridad, de más concreto a más general:
+//   1. ejercicio.reps_esquema  — esquema propio del ejercicio, serie a serie
+//      (Tabla 5: [10,8,8,6], [15,15], ["FALLO",…]). Se guarda como JSON.
+//   2. tabla.recomendaciones.reps_por_serie — esquema común a toda la tabla
+//      (Tabla 3 y 4: [12,12,10,8]).
+//   3. ejercicio.repeticiones_planificadas — un único valor para todas.
+// Un valor puede ser un número o la cadena 'FALLO'.
+
+const FALLO = 'FALLO';
 
 function tablaIdDeEjercicio(e) {
   const d = (e && e.dia_id != null) ? DB.getDia(e.dia_id) : null;
   return d ? d.tabla_id : STATE.tablaId;
 }
 
+// Normaliza a array un esquema guardado en la BD (JSON) o escrito a mano
+// ("10/8/8/6", "10, 8, 8, 6", "fallo").
+function parseEsquema(v) {
+  if (v == null || v === '') return [];
+  let arr = v;
+  if (typeof v === 'string') {
+    const s = v.trim();
+    if (s.startsWith('[')) {
+      try { arr = JSON.parse(s); } catch (err) { arr = s.split(/[\/,;\s]+/); }
+    } else {
+      arr = s.split(/[\/,;\s]+/);
+    }
+  }
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map(x => {
+      if (typeof x === 'string' && /fallo/i.test(x)) return FALLO;
+      const n = Number(x);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    })
+    .filter(x => x != null);
+}
+
+function esquemaDeEjercicio(e) { return parseEsquema(e && e.reps_esquema); }
+
+// Versión legible/editable del esquema: "10/8/8/6", "fallo/fallo/…" o ''.
+function esquemaTexto(e) {
+  const arr = esquemaDeEjercicio(e);
+  return arr.length ? arr.map(r => r === FALLO ? 'fallo' : r).join('/') : '';
+}
+
 function repsObjetivo(e) {
-  const total = e.series_planificadas || 3;
-  const base  = e.repeticiones_planificadas || 10;
-  const t = DB.getTabla(tablaIdDeEjercicio(e));
-  const esq = (t && t.recomendaciones && Array.isArray(t.recomendaciones.reps_por_serie))
-    ? t.recomendaciones.reps_por_serie.map(Number).filter(n => Number.isFinite(n) && n > 0)
-    : [];
+  const propio = esquemaDeEjercicio(e);
+  const total  = propio.length || e.series_planificadas || 3;
+  const base   = e.repeticiones_planificadas || 10;
+
+  let esq = propio;
+  if (!esq.length) {
+    const t = DB.getTabla(tablaIdDeEjercicio(e));
+    esq = (t && t.recomendaciones) ? parseEsquema(t.recomendaciones.reps_por_serie) : [];
+  }
   return Array.from({ length: total }, (_, i) => {
     if (!esq.length) return base;
     return esq[i] != null ? esq[i] : esq[esq.length - 1];
   });
 }
 
-// Texto resumido: "4 × 12 reps" o "4 series × 12/12/10/8 reps"
+// Nº de series que se pre-rellenan al abrir un ejercicio.
+function seriesPlanificadas(e) {
+  const propio = esquemaDeEjercicio(e);
+  return propio.length || e.series_planificadas || 3;
+}
+
+// Texto resumido: "4 × 12 reps", "4 series × 10/8/8/6 reps", "4 series al fallo"
 function repsObjetivoTexto(e, corto = false) {
   const reps  = repsObjetivo(e);
   const total = reps.length;
+  if (reps.every(r => r === FALLO)) {
+    return corto ? `${total} × al fallo` : `${total} series al fallo`;
+  }
   const iguales = reps.every(r => r === reps[0]);
-  const detalle = iguales ? `${reps[0]}` : reps.join('/');
+  const detalle = iguales ? `${reps[0]}` : reps.map(r => r === FALLO ? 'fallo' : r).join('/');
   return corto ? `${total} × ${detalle} reps` : `${total} series × ${detalle} reps`;
+}
+
+// Descanso entre series: el del ejercicio si lo tiene, si no el de la tabla.
+function descansoTexto(e) {
+  if (e && e.descanso_seg) return `${e.descanso_seg} segundos entre series`;
+  const t = DB.getTabla(tablaIdDeEjercicio(e));
+  return (t && t.recomendaciones && t.recomendaciones.descanso) || null;
+}
+
+// Escapa texto libre (nombres, notas) antes de meterlo en innerHTML.
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function toast(msg, kind = 'ok') {
@@ -237,14 +300,22 @@ function ejercicioCard(e) {
   if (doneToday) card.classList.add('done');
   const last = DB.lastRegistroEjercicio(e.id);
 
-  const infoLine = e.tipo === 'cardio'
-    ? `<span class="ej-tag cardio">CARDIO</span> <span>${e.duracion_min || 0} min</span>`
-    : `<span class="ej-tag series">SERIES</span> <span>${repsObjetivoTexto(e, true)}</span>`;
+  let infoLine;
+  if (e.tipo === 'cardio') {
+    infoLine = `<span class="ej-tag cardio">CARDIO</span> <span>${e.duracion_min || 0} min</span>`;
+  } else if (e.tipo === 'rutina') {
+    infoLine = `<span class="ej-tag rutina">RUTINA</span> <span>vídeo guiado</span>`;
+  } else {
+    const desc = e.descanso_seg ? ` · ${e.descanso_seg}s desc.` : '';
+    infoLine = `<span class="ej-tag series">SERIES</span> <span>${repsObjetivoTexto(e, true)}${desc}</span>`;
+  }
 
   let lastData = '';
   if (last) {
     if (e.tipo === 'cardio' && last.duracion_min) {
       lastData = `🕒 Última: ${last.duracion_min} min · ${formatFecha(last.fecha)}`;
+    } else if (e.tipo === 'rutina') {
+      lastData = `✅ Última vez: ${formatFecha(last.fecha)}`;
     } else if (e.tipo === 'series' && last.series && last.series.length) {
       const best = last.series.reduce((m, s) => (s.peso_kg > (m?.peso_kg || 0) ? s : m), null);
       if (best) lastData = `🏋️ Última: ${best.peso_kg || 0} kg × ${best.repeticiones || '?'} · ${formatFecha(last.fecha)}`;
@@ -254,7 +325,7 @@ function ejercicioCard(e) {
   card.innerHTML = `
     <div class="ej-orden">${e.orden}</div>
     <div class="ej-meta">
-      <div class="ej-nombre">${e.nombre}</div>
+      <div class="ej-nombre">${esc(e.nombre)}</div>
       <div class="ej-info-line">${infoLine}</div>
       ${lastData ? `<div class="ej-last-data">${lastData}</div>` : ''}
     </div>
@@ -321,13 +392,19 @@ function renderEjercicioModal() {
   const enlace = e.video_url
     ? `<a class="pill" href="${e.video_url}" target="_blank" rel="noopener">▶️ Ver en ${videoPlataforma(e.video_url)} ↗</a>`
     : '';
+  const notaPill = e.nota ? `<span class="pill nota">⚠️ ${esc(e.nota)}</span>` : '';
   if (e.tipo === 'cardio') {
-    info.innerHTML = `<span class="pill">🚴 Cardio · ${e.duracion_min || 0} min recomendados</span>${enlace}`;
+    info.innerHTML = `<span class="pill">🚴 Cardio · ${e.duracion_min || 0} min recomendados</span>${enlace}${notaPill}`;
+  } else if (e.tipo === 'rutina') {
+    info.innerHTML = `<span class="pill">🎬 Rutina guiada en vídeo</span>${enlace}${notaPill}`;
   } else {
+    const desc = descansoTexto(e);
     info.innerHTML = `
       <span class="pill">💪 ${repsObjetivoTexto(e)}</span>
+      ${desc ? `<span class="pill">😮‍💨 ${esc(desc)}</span>` : ''}
       <span class="pill">⏱️ 1s positiva · 3s negativa</span>
       ${enlace}
+      ${notaPill}
     `;
   }
 
@@ -350,6 +427,16 @@ function renderEjercicioModal() {
 
 function renderSeriesSection(e) {
   const wrap = $('#ej-series-wrap');
+  if (e.tipo === 'rutina') {
+    // Rutina en vídeo: no hay series ni minutos que anotar, sólo dejar constancia
+    // de que se ha hecho (el botón "Guardar sesión" crea el registro del día).
+    wrap.innerHTML = `
+      <p class="hint" style="margin:14px 0 0;">
+        Sigue el vídeo de arriba. Pulsa <strong>Guardar sesión</strong> para marcarla como hecha en esta fecha.
+      </p>
+    `;
+    return;
+  }
   if (e.tipo === 'cardio') {
     wrap.innerHTML = `
       <div class="form-row">
@@ -370,8 +457,8 @@ function renderSeriesSection(e) {
   const seriesActuales = STATE.ejSeries;
   const objetivo = repsObjetivo(e);           // ej. [12, 12, 10, 8]
   if (!seriesActuales.length) {
-    // Pre-rellenar con las series planificadas (3, 4, … según la tabla)
-    const plan = e.series_planificadas || 3;
+    // Pre-rellenar con las series planificadas (2, 3, 4, … según el ejercicio)
+    const plan = seriesPlanificadas(e);
     for (let i = 1; i <= plan; i++) {
       seriesActuales.push({ num: i, repeticiones: null, peso_kg: null });
     }
@@ -383,11 +470,16 @@ function renderSeriesSection(e) {
   const esfuerzo = (DB.getTabla(tablaIdDeEjercicio(e))?.recomendaciones?.nivel_esfuerzo) || [];
   const esfuerzoDe = num => (esfuerzo.find(n => Number(n.serie) === num) || {}).descripcion || '';
 
+  const todoFallo = objetivo.every(r => r === FALLO);
+  const objetivoHTML = todoFallo
+    ? `🎯 Objetivo: las ${objetivo.length} series <strong>al fallo</strong>`
+    : `🎯 Objetivo: ${objetivo.map((r, i) => `S${i + 1} <strong>${r === FALLO ? 'fallo' : r}</strong>`).join(' · ')} reps`;
+  const descanso = descansoTexto(e);
+
   wrap.innerHTML = `
     <h3 class="section-title" style="margin-top:14px;">Series</h3>
-    <p class="hint" style="margin:-4px 0 10px;">
-      🎯 Objetivo: ${objetivo.map((r, i) => `S${i + 1} <strong>${r}</strong>`).join(' · ')} reps
-    </p>
+    <p class="hint" style="margin:-4px 0 4px;">${objetivoHTML}</p>
+    ${descanso ? `<p class="hint" style="margin:0 0 10px;">😮‍💨 Descanso: ${esc(descanso)}</p>` : '<div style="height:6px;"></div>'}
     <div class="series-actions">
       <button class="btn ghost" id="btn-add-serie" ${seriesActuales.length >= MAX_SERIES ? 'disabled' : ''}>+ Añadir serie</button>
       <button class="btn ghost" id="btn-copy-last">📋 Copiar última sesión</button>
@@ -404,7 +496,7 @@ function renderSeriesSection(e) {
           <div class="ser-num" title="${esfuerzoDe(s.num)}">${s.num}</div>
           <input type="number" min="0" max="100" step="1" data-field="repeticiones"
                  value="${s.repeticiones != null ? s.repeticiones : ''}"
-                 placeholder="${objetivoDe(s.num)} reps">
+                 placeholder="${objetivoDe(s.num) === FALLO ? 'al fallo' : objetivoDe(s.num) + ' reps'}">
           <input type="number" min="0" max="500" step="0.5" data-field="peso_kg"
                  value="${s.peso_kg != null ? s.peso_kg : ''}" placeholder="kg">
           <button class="ser-rm" data-rm="${idx}" aria-label="Quitar serie">×</button>
@@ -462,6 +554,8 @@ function renderEjercicioHistorial(e) {
     let detalle = '';
     if (e.tipo === 'cardio') {
       detalle = `${r.duracion_min || 0} min`;
+    } else if (e.tipo === 'rutina') {
+      detalle = 'Rutina completada ✓';
     } else if (series.length) {
       detalle = series.map(s => `S${s.num}: ${s.repeticiones || '?'}×${s.peso_kg != null ? s.peso_kg + 'kg' : '—'}`).join(' · ');
     } else {
@@ -487,7 +581,9 @@ async function guardarSesion() {
     duracion_min: e.tipo === 'cardio' ? (STATE.ejDuracion || null) : null,
     completado:   1,
     notas:        $('#ej-notas').value.trim() || null,
-    series:       e.tipo === 'series' ? STATE.ejSeries.filter(s => s.repeticiones != null || s.peso_kg != null) : [],
+    series:       (e.tipo !== 'cardio' && e.tipo !== 'rutina')
+                    ? STATE.ejSeries.filter(s => s.repeticiones != null || s.peso_kg != null)
+                    : [],
   };
   await DB.upsertSesion(payload);
   toast('Sesión guardada ✓');
@@ -536,6 +632,7 @@ function renderHistorial() {
   cont.innerHTML = regs.map(r => {
     let detalle = '';
     if (r.ejercicio_tipo === 'cardio') detalle = `${r.duracion_min || 0} min`;
+    else if (r.ejercicio_tipo === 'rutina') detalle = 'Rutina completada ✓';
     else {
       const ss = DB.listSeries(r.id);
       detalle = ss.length ? ss.map(s => `${s.repeticiones || '?'}×${s.peso_kg != null ? s.peso_kg + 'kg' : '—'}`).join(' · ') : 'sin series';
@@ -543,7 +640,7 @@ function renderHistorial() {
     return `
       <div class="historial-card">
         <div>
-          <div class="date">${r.ejercicio_nombre}</div>
+          <div class="date">${esc(r.ejercicio_nombre)}</div>
           <div class="stats">${formatFecha(r.fecha)} · ${r.dia_nombre} · ${r.tabla_nombre}</div>
           <div class="stats">${detalle}</div>
         </div>
@@ -629,6 +726,7 @@ async function duplicarTabla(id) {
         orden: e.orden, nombre: e.nombre, tipo: e.tipo,
         duracion_min: e.duracion_min,
         series: e.series_planificadas, repeticiones: e.repeticiones_planificadas,
+        reps_esquema: e.reps_esquema, descanso_seg: e.descanso_seg, nota: e.nota,
         video_url: e.video_url,
       })),
     })),
@@ -736,28 +834,32 @@ function renderEditorDays(t) {
     card.className = 'editor-day';
     card.innerHTML = `
       <div class="editor-day-head">
-        <input type="text" value="${(d.nombre || '').replace(/"/g, '&quot;')}" data-day-name="${d.id}" style="background:transparent;border:0;border-bottom:1px solid var(--border);padding:6px 4px;font-weight:700;font-size:15px;">
+        <input type="text" value="${esc(d.nombre || '')}" data-day-name="${d.id}" style="background:transparent;border:0;border-bottom:1px solid var(--border);padding:6px 4px;font-weight:700;font-size:15px;">
         <button class="text-btn danger-text" data-del-day="${d.id}">Borrar día</button>
       </div>
       <div data-eje-list="${d.id}">
         ${ejs.map(e => `
           <div class="editor-ejercicio" data-eje="${e.id}">
             <span style="color:var(--accent);font-weight:800;">${e.orden}</span>
-            <input type="text" value="${(e.nombre || '').replace(/"/g, '&quot;')}" data-field="nombre" data-id="${e.id}" placeholder="Nombre ejercicio">
+            <input type="text" value="${esc(e.nombre || '')}" data-field="nombre" data-id="${e.id}" placeholder="Nombre ejercicio">
             <button data-del-eje="${e.id}" aria-label="Borrar">×</button>
           </div>
           <div style="display:flex;gap:6px;margin:0 0 8px 26px;flex-wrap:wrap;">
             <select data-field="tipo" data-id="${e.id}" style="flex:0 0 110px;padding:6px 8px;font-size:13px;">
               <option value="series"  ${e.tipo === 'series'  ? 'selected' : ''}>Series</option>
               <option value="cardio"  ${e.tipo === 'cardio'  ? 'selected' : ''}>Cardio</option>
+              <option value="rutina"  ${e.tipo === 'rutina'  ? 'selected' : ''}>Rutina</option>
             </select>
             ${e.tipo === 'cardio' ? `
               <input type="number" data-field="duracion_min" data-id="${e.id}" value="${e.duracion_min || ''}" placeholder="min" style="flex:0 0 80px;padding:6px 8px;font-size:13px;">
-            ` : `
+            ` : e.tipo === 'rutina' ? '' : `
               <input type="number" data-field="series_planificadas" data-id="${e.id}" value="${e.series_planificadas || 3}" placeholder="series" style="flex:0 0 80px;padding:6px 8px;font-size:13px;">
               <input type="number" data-field="repeticiones_planificadas" data-id="${e.id}" value="${e.repeticiones_planificadas || 10}" placeholder="reps" style="flex:0 0 80px;padding:6px 8px;font-size:13px;">
+              <input type="text" data-field="reps_esquema" data-id="${e.id}" value="${esc(esquemaTexto(e))}" placeholder="10/8/8/6 o fallo" title="Repeticiones serie a serie. Deja vacío para usar el mismo valor en todas." style="flex:0 0 130px;padding:6px 8px;font-size:13px;">
+              <input type="number" data-field="descanso_seg" data-id="${e.id}" value="${e.descanso_seg || ''}" placeholder="desc. (s)" title="Descanso entre series, en segundos" style="flex:0 0 95px;padding:6px 8px;font-size:13px;">
             `}
-            <input type="url" data-field="video_url" data-id="${e.id}" value="${e.video_url || ''}" placeholder="https://vimeo.com/… o https://youtu.be/…" style="flex:1 1 100%;padding:6px 8px;font-size:13px;">
+            <input type="text" data-field="nota" data-id="${e.id}" value="${esc(e.nota || '')}" placeholder="Aviso del entrenador (opcional)" style="flex:1 1 100%;padding:6px 8px;font-size:13px;">
+            <input type="url" data-field="video_url" data-id="${e.id}" value="${esc(e.video_url || '')}" placeholder="https://vimeo.com/… o https://youtu.be/…" style="flex:1 1 100%;padding:6px 8px;font-size:13px;">
           </div>
         `).join('')}
       </div>
@@ -805,10 +907,15 @@ function renderEditorDays(t) {
       const field = el.dataset.field;
       const e = DB.getEjercicio(id);
       if (!e) return;
-      const val = el.type === 'number' ? (el.value === '' ? null : Number(el.value)) : el.value;
+      let val = el.type === 'number' ? (el.value === '' ? null : Number(el.value)) : el.value;
+      if (field === 'reps_esquema') {
+        const arr = parseEsquema(val);
+        val = arr.length ? JSON.stringify(arr) : null;
+      }
+      if (field === 'nota') val = (val || '').trim() || null;
       e[field] = val;
       await DB.updateEjercicio(e);
-      if (field === 'tipo') renderEditorDays(t);
+      if (field === 'tipo' || field === 'reps_esquema') renderEditorDays(t);
     };
   });
 }
@@ -862,10 +969,13 @@ async function main() {
     await DB.importFromFile(f);
     toast('Importado ✓');
     closeMenu();
+    // La tabla y el día seleccionados pertenecían a la BD anterior.
+    STATE.tablaId = null;
+    STATE.diaId   = null;
     goTab(STATE.tab);
   };
   $('#btn-reset').onclick = async () => {
-    if (!confirm('Esto borrará TODO y dejará solo las tablas de fábrica (Tabla 1, 2, 3 y 4). ¿Seguro?')) return;
+    if (!confirm('Esto borrará TODO y dejará solo las tablas de fábrica (Tabla 1, 2, 3, 4 y 5). ¿Seguro?')) return;
     await DB.reset();
     toast('Reiniciado');
     closeMenu();

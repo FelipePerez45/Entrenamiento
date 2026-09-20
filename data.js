@@ -3,6 +3,7 @@
 //   · MES 2 — Tabla 2 (PDF "Tabla 2 GYM - Felipe Alejandro Pérez 21_06_26").
 //   · MES 3 — Tabla 3 (PDF "Tabla 3 GYM - Felipe Alejandro Pérez 19_07_26").
 //   · MES 4 — Tabla 4 (PDF "Tabla 4 GYM - Felipe Alejandro Pérez 15_08_26").
+//   · MES 5 — Tabla 5 (PDF "Tabla 5 GYM - Felipe Alejandro Pérez (13_09_26)").
 // Cada mes se añade una nueva tabla aquí (SEED_TABLA_N) y a window.ENTRENO_SEED;
 // también se pueden crear/editar nuevas tablas desde la propia app.
 // Los nombres de los ejercicios son inferidos por el contenido visual del vídeo
@@ -379,7 +380,7 @@ const SEED_TABLA_3 = {
 const SEED_TABLA_4 = {
   nombre:  'MES 4 — Tabla 4',
   fecha:   '2026-08-15',
-  activa:  1,
+  activa:  0,
   recomendaciones: {
     tempos: '1 segundo para la positiva, 3 segundos para la negativa.',
     positiva: 'Momento del ejercicio en el que contraes el músculo.',
@@ -501,9 +502,192 @@ const SEED_TABLA_4 = {
   ],
 };
 
+// ---------------------------------------------------------------------------
+// MES 5 — Tabla 5 (PDF "Tabla 5 GYM - Felipe Alejandro Pérez (13_09_26)").
+//
+// Novedad respecto a las tablas 1-4: el esquema de repeticiones y el descanso
+// YA NO son globales de la tabla, sino propios de CADA ejercicio
+// (10/8/8/6, 15/15, 8/8/8/8, 10/10/10/10, 12/12/12/12, 15/15/15/15 o al FALLO;
+// descansos de 45, 50 o 60 segundos). Por eso cada ejercicio lleva su
+// `reps_esquema` y su `descanso_seg`, que tienen prioridad sobre las
+// recomendaciones generales de la tabla.
+// ---------------------------------------------------------------------------
+
+const F4 = ['FALLO', 'FALLO', 'FALLO', 'FALLO'];   // 4 series al fallo
+
+const SEED_TABLA_5 = {
+  nombre:  'MES 5 — Tabla 5',
+  fecha:   '2026-09-13',
+  activa:  1,
+  recomendaciones: {
+    tempos: '1 segundo para la positiva, 3 segundos para la negativa.',
+    positiva: 'Momento del ejercicio en el que contraes el músculo.',
+    negativa: 'Momento excéntrico en el que aguantas la carga a la posición inicial.',
+    nivel_esfuerzo: [
+      { serie: 1, descripcion: 'FALLO − 2' },
+      { serie: 2, descripcion: 'FALLO − 1' },
+      { serie: 3, descripcion: 'FALLO' },
+      { serie: 4, descripcion: 'FALLO + 1' },
+    ],
+    descanso: 'Variable según el ejercicio: 45, 50 o 60 segundos entre series.',
+    notas: [
+      'Subir de peso siempre que sea posible cumplimentando las leyes anteriores.',
+      'En esta tabla las repeticiones y el descanso cambian en cada ejercicio: mira el objetivo que aparece en cada ficha.',
+      'Rutina dividida por grupos musculares (ya no es fullbody): pectoral, espalda, hombros, brazos y pierna en días separados.',
+    ],
+  },
+  dias: [
+    {
+      numero: 1,
+      nombre: 'Día 1 — Glúteos / Isquios / Cuádriceps / Abs',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — elíptica', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/527297408/2fdf8afc90' },
+        { orden: 2, nombre: 'Peso muerto rumano con barra', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/536330537/5d08f0ce10' },
+        { orden: 3, nombre: 'Elevación de cadera (hip thrust) con espalda en banco', tipo: 'series', series: 2, repeticiones: 15,
+          reps_esquema: [15, 15], descanso_seg: 50,
+          nota: 'Si resulta muy sencillo, ponte una mancuerna en la cintura.',
+          video_url: 'https://vimeo.com/557124981/7a895af676' },
+        { orden: 4, nombre: 'Prensa de piernas', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/527227742/b28ccbd83d' },
+        { orden: 5, nombre: 'Zancadas con mancuernas', tipo: 'series', series: 4, repeticiones: 8,
+          reps_esquema: [8, 8, 8, 8], descanso_seg: 60,
+          video_url: 'https://vimeo.com/536328747/2e82c6abcb' },
+        { orden: 6, nombre: 'Extensión de cuádriceps (máquina)', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 10, 10, 10], descanso_seg: 60,
+          video_url: 'https://vimeo.com/527220815/54e98d8957' },
+        { orden: 7, nombre: 'Elevaciones de piernas en banco inclinado', tipo: 'series', series: 4,
+          reps_esquema: F4, descanso_seg: 50,
+          nota: 'Las 4 series al fallo, hasta donde permita la movilidad.',
+          video_url: 'https://vimeo.com/651535167/8abc3aa131' },
+        { orden: 8, nombre: 'Cardio final — escaladora', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 2,
+      nombre: 'Día 2 — Pectoral',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — elíptica', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/527297408/2fdf8afc90' },
+        { orden: 2, nombre: 'Press banca con barra', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/523634069/6ddd7d8798' },
+        { orden: 3, nombre: 'Press inclinado con barra', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/546842517/4a8db9bf81' },
+        { orden: 4, nombre: 'Press declinado con barra', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/536304125/ca0e96f35e' },
+        { orden: 5, nombre: 'Pullover con mancuerna', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/783589098/2e753a0c04' },
+        { orden: 6, nombre: 'Press de pecho (máquina)', tipo: 'series', series: 4, repeticiones: 15,
+          reps_esquema: [15, 15, 15, 15], descanso_seg: 60,
+          video_url: 'https://vimeo.com/523648209/20de96f697' },
+        { orden: 7, nombre: 'Cardio final — escaladora', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 3,
+      nombre: 'Día 3 — Espalda / Oblicuos',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — elíptica', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/527297408/2fdf8afc90' },
+        { orden: 2, nombre: 'Jalón al pecho', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/527236731/9422ac73d7' },
+        { orden: 3, nombre: 'Jalón al pecho (agarre neutro)', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/527190465/e9783c826e' },
+        { orden: 4, nombre: 'Remo con barra inclinado', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/714987023/ceba92f25a' },
+        { orden: 5, nombre: 'Remo invertido en barra', tipo: 'series', series: 4,
+          reps_esquema: F4, descanso_seg: 60,
+          nota: 'Las 4 series al fallo.',
+          video_url: 'https://vimeo.com/536315872/46c035334c' },
+        { orden: 6, nombre: 'Jalón con brazos rectos en polea (pullover en polea)', tipo: 'series', series: 4, repeticiones: 15,
+          reps_esquema: [15, 15, 15, 15], descanso_seg: 60,
+          video_url: 'https://vimeo.com/536318087/d2ae4ad7f1' },
+        { orden: 7, nombre: 'Oblicuos — rutina complementaria', tipo: 'rutina',
+          nota: 'Rutina de oblicuos en vídeo: sigue el ritmo que marca el entrenador.',
+          video_url: 'https://youtu.be/xq6MHZgI1XE' },
+        { orden: 8, nombre: 'Cardio final — escaladora', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 4,
+      nombre: 'Día 4 — Hombros',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — remo', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/538089277/dd99b93922' },
+        { orden: 2, nombre: 'Press de hombros sentado con mancuernas', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/536311053/1abcefc180' },
+        { orden: 3, nombre: 'Press militar sentado con barra', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/527198434/5b9d4a096c' },
+        { orden: 4, nombre: 'Remo al mentón sentado con mancuernas', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 50,
+          video_url: 'https://vimeo.com/554728722/9932b88502' },
+        { orden: 5, nombre: 'Elevaciones laterales con mancuernas', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 50,
+          video_url: 'https://vimeo.com/546837503/96d52f5081' },
+        { orden: 6, nombre: 'Elevaciones posteriores en banco inclinado (pájaros)', tipo: 'series', series: 4, repeticiones: 12,
+          reps_esquema: [12, 12, 12, 12], descanso_seg: 45,
+          video_url: 'https://vimeo.com/546839195/99d71820ee' },
+        { orden: 7, nombre: 'Cardio final — escaladora', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+    {
+      numero: 5,
+      nombre: 'Día 5 — Bíceps / Tríceps / Abs',
+      tipo:   'fuerza',
+      ejercicios: [
+        { orden: 1, nombre: 'Calentamiento — elíptica', tipo: 'cardio', duracion_min: 5,
+          video_url: 'https://vimeo.com/527297408/2fdf8afc90' },
+        { orden: 2, nombre: 'Curl de bíceps en banco inclinado con mancuernas', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/536322759/4ce8cda887' },
+        { orden: 3, nombre: 'Curl de bíceps con barra', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/554731058/f9b2db2141' },
+        { orden: 4, nombre: 'Curl martillo sentado con mancuernas', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/576223475/c91ce4787d' },
+        { orden: 5, nombre: 'Extensión de tríceps sobre la cabeza en polea', tipo: 'series', series: 4, repeticiones: 10,
+          reps_esquema: [10, 8, 8, 6], descanso_seg: 60,
+          video_url: 'https://vimeo.com/554740021/5af31076cb' },
+        { orden: 6, nombre: 'Extensión de tríceps sobre la cabeza en polea (2.º bloque)', tipo: 'series', series: 4, repeticiones: 12,
+          reps_esquema: [12, 12, 12, 12], descanso_seg: 50,
+          nota: 'El PDF repite este mismo ejercicio y vídeo con un segundo esquema de series (12/12/12/12 y 50 s de descanso).',
+          video_url: 'https://vimeo.com/554740021/5af31076cb' },
+        { orden: 7, nombre: 'Elevaciones de piernas en banco inclinado', tipo: 'series', series: 4,
+          reps_esquema: F4, descanso_seg: 50,
+          nota: 'Las 4 series al fallo, hasta donde permita la movilidad.',
+          video_url: 'https://vimeo.com/651535167/8abc3aa131' },
+        { orden: 8, nombre: 'Cardio final — escaladora', tipo: 'cardio', duracion_min: 20,
+          video_url: 'https://vimeo.com/528803433/d8506bc517' },
+      ],
+    },
+  ],
+};
+
 window.ENTRENO_SEED = {
   TABLA_1: SEED_TABLA_1,
   TABLA_2: SEED_TABLA_2,
   TABLA_3: SEED_TABLA_3,
   TABLA_4: SEED_TABLA_4,
+  TABLA_5: SEED_TABLA_5,
 };

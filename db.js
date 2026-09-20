@@ -35,6 +35,14 @@ CREATE TABLE IF NOT EXISTS ejercicios (
   duracion_min             INTEGER,
   series_planificadas      INTEGER DEFAULT 3,
   repeticiones_planificadas INTEGER DEFAULT 10,
+  -- Esquema de repeticiones serie a serie, en JSON (ej. "[10,8,8,6]" o
+  -- '["FALLO","FALLO","FALLO","FALLO"]'). Tiene prioridad sobre
+  -- repeticiones_planificadas y sobre recomendaciones.reps_por_serie de la tabla.
+  reps_esquema             TEXT,
+  -- Descanso entre series propio del ejercicio, en segundos (45, 50, 60…).
+  descanso_seg             INTEGER,
+  -- Aviso del entrenador para este ejercicio concreto.
+  nota                     TEXT,
   video_url                TEXT,
   FOREIGN KEY (dia_id) REFERENCES dias(id) ON DELETE CASCADE
 );
@@ -106,12 +114,30 @@ const DB = (() => {
     });
   }
 
+  // Columnas añadidas después de la primera versión de la app. Se aplican a las
+  // bases de datos que ya existían en el navegador (o que se importan desde un
+  // .sqlite antiguo) sin tocar los datos ya registrados.
+  const COLUMNAS_NUEVAS = [
+    ['ejercicios', 'reps_esquema', 'TEXT'],
+    ['ejercicios', 'descanso_seg', 'INTEGER'],
+    ['ejercicios', 'nota',         'TEXT'],
+  ];
+
+  function migrar() {
+    for (const [tabla, columna, tipo] of COLUMNAS_NUEVAS) {
+      const cols = _db.exec(`PRAGMA table_info(${tabla})`);
+      const existe = cols.length && cols[0].values.some(v => v[1] === columna);
+      if (!existe) _db.exec(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${tipo}`);
+    }
+  }
+
   async function init() {
     if (_db) return _db;
     _SQL = await initSqlJs({ locateFile: f => SQLJS_CDN + f });
     const existing = await idbLoadBlob();
     _db = existing ? new _SQL.Database(existing) : new _SQL.Database();
     _db.exec(SCHEMA);
+    migrar();
     // Siembra las tablas de la semilla que aún no estén cargadas (MES 1, MES 2, MES 3, …).
     // En una BD vacía carga todas; en una BD existente sólo añade las nuevas,
     // conservando las sesiones ya registradas.
@@ -208,10 +234,13 @@ const DB = (() => {
       const diaId = lastInsertId();
       for (const e of d.ejercicios) {
         run(
-          `INSERT INTO ejercicios (dia_id, orden, nombre, tipo, duracion_min, series_planificadas, repeticiones_planificadas, video_url)
-           VALUES (?,?,?,?,?,?,?,?)`,
+          `INSERT INTO ejercicios (dia_id, orden, nombre, tipo, duracion_min, series_planificadas,
+                                   repeticiones_planificadas, reps_esquema, descanso_seg, nota, video_url)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
           [diaId, e.orden, e.nombre, e.tipo, e.duracion_min || null,
-           e.series || 3, e.repeticiones || 10, e.video_url || null]
+           e.series || 3, e.repeticiones || 10,
+           Array.isArray(e.reps_esquema) ? JSON.stringify(e.reps_esquema) : (e.reps_esquema || null),
+           e.descanso_seg || null, e.nota || null, e.video_url || null]
         );
       }
     }
@@ -300,6 +329,14 @@ const DB = (() => {
     await persist();
   }
 
+  // Acepta un array ([10,8,8,6]) o un texto ya serializado y lo deja siempre
+  // como JSON (o null si el ejercicio no tiene esquema propio).
+  function normalizaEsquema(v) {
+    if (v == null || v === '') return null;
+    if (Array.isArray(v)) return v.length ? JSON.stringify(v) : null;
+    return String(v);
+  }
+
   // ---- Ejercicios ------------------------------------------------------
 
   function listEjercicios(diaId) {
@@ -312,10 +349,12 @@ const DB = (() => {
 
   async function createEjercicio(e) {
     run(
-      `INSERT INTO ejercicios (dia_id, orden, nombre, tipo, duracion_min, series_planificadas, repeticiones_planificadas, video_url)
-       VALUES (?,?,?,?,?,?,?,?)`,
+      `INSERT INTO ejercicios (dia_id, orden, nombre, tipo, duracion_min, series_planificadas,
+                               repeticiones_planificadas, reps_esquema, descanso_seg, nota, video_url)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
       [e.dia_id, e.orden, e.nombre, e.tipo, e.duracion_min || null,
-       e.series_planificadas || 3, e.repeticiones_planificadas || 10, e.video_url || null]
+       e.series_planificadas || 3, e.repeticiones_planificadas || 10,
+       normalizaEsquema(e.reps_esquema), e.descanso_seg || null, e.nota || null, e.video_url || null]
     );
     const id = lastInsertId();
     await persist();
@@ -326,10 +365,11 @@ const DB = (() => {
     run(
       `UPDATE ejercicios
        SET orden = ?, nombre = ?, tipo = ?, duracion_min = ?, series_planificadas = ?,
-           repeticiones_planificadas = ?, video_url = ?
+           repeticiones_planificadas = ?, reps_esquema = ?, descanso_seg = ?, nota = ?, video_url = ?
        WHERE id = ?`,
       [e.orden, e.nombre, e.tipo, e.duracion_min || null,
-       e.series_planificadas || 3, e.repeticiones_planificadas || 10, e.video_url || null, e.id]
+       e.series_planificadas || 3, e.repeticiones_planificadas || 10,
+       normalizaEsquema(e.reps_esquema), e.descanso_seg || null, e.nota || null, e.video_url || null, e.id]
     );
     await persist();
   }
@@ -449,6 +489,10 @@ const DB = (() => {
     _db.close();
     _db = new _SQL.Database(buf);
     _db.exec(SCHEMA);
+    migrar();
+    // Un .sqlite exportado con una versión anterior puede no traer las últimas
+    // tablas del entrenador; se añaden sin tocar las sesiones importadas.
+    await sembrarPendientes();
     await persist();
   }
 
@@ -456,6 +500,7 @@ const DB = (() => {
     _db.close();
     _db = new _SQL.Database();
     _db.exec(SCHEMA);
+    migrar();
     await seedTodas();
     await persist();
   }
