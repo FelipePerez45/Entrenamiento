@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<title>Mi transformación 2026</title>
+<style>
+:root{
+  color-scheme: light;
+  --page:#f9f9f7; --card:#ffffff;
+  --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s7:#4a3aa7;
+  --good:#006300; --accent-soft:#e8f1fc; --neutral:#d9d8d2;
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --page:#0d0d0d; --card:#1a1a19;
+    --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s7:#9085e9;
+    --good:#0ca30c; --accent-soft:#16263b; --neutral:#3a3a37;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --card:#1a1a19;
+  --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s7:#9085e9;
+  --good:#0ca30c; --accent-soft:#16263b; --neutral:#3a3a37;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 56px}
+header{padding:calc(16px + env(safe-area-inset-top)) 0 4px}
+.eyebrow{font-size:13px;color:var(--muted);margin:0 0 4px}
+h1{font-size:clamp(24px,6.5vw,34px);line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;text-wrap:balance}
+/* tabs */
+.tabs{position:sticky;top:0;z-index:20;background:var(--page);margin:8px -16px 0;padding:8px 16px 0;
+  border-bottom:1px solid var(--grid)}
+.tablist{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.tablist::-webkit-scrollbar{display:none}
+.tabs::after{content:'';position:absolute;right:0;top:8px;bottom:1px;width:28px;pointer-events:none;background:linear-gradient(to right,transparent,var(--page))}
+.tab{flex:0 0 auto;scroll-snap-align:start;appearance:none;border:0;background:none;color:var(--ink2);
+  font:600 15px/1 system-ui,-apple-system,"Segoe UI",sans-serif;padding:12px 12px 13px;min-height:44px;cursor:pointer;
+  border-bottom:3px solid transparent;border-radius:8px 8px 0 0;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--s1)}
+.tab:focus-visible{outline:2px solid var(--s1);outline-offset:-2px}
+.panel{padding-top:18px}
+.panel[hidden]{display:none}
+h2{font-size:20px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--ink2);font-size:14px;margin:0 0 14px}
+section{margin-top:26px}
+section:first-child{margin-top:0}
+.card{background:var(--card);border:1px solid var(--ring);border-radius:var(--radius);padding:18px 16px}
+.hero{display:grid;gap:14px}
+.hero-main{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 18px}
+.big{font-size:clamp(48px,15vw,76px);font-weight:700;line-height:1;letter-spacing:-.03em}
+.big small{font-size:.38em;font-weight:600;color:var(--ink2);letter-spacing:0}
+.weights{display:flex;gap:10px;align-items:center;color:var(--ink2);font-size:15px}
+.weights b{color:var(--ink);font-size:18px}
+.track{position:relative;height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.track span{position:absolute;inset:0 auto 0 0;background:var(--s3);border-radius:5px}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(min-width:640px){.kpis.k4{grid-template-columns:repeat(4,minmax(0,1fr))}.kpis.k3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.kpi{background:var(--card);border:1px solid var(--ring);border-radius:14px;padding:14px 12px;min-width:0}
+.kpi .l{font-size:13px;color:var(--ink2);margin:0}
+.kpi .v{font-size:clamp(23px,6.8vw,30px);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin:4px 0 2px}
+.kpi .v small{font-size:14px;font-weight:600;color:var(--ink2)}
+.kpi .n{font-size:12px;color:var(--muted);margin:0}
+.kpi i.sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}
+.chart{position:relative;width:100%;touch-action:pan-y}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink2);margin:0 0 8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{position:absolute;pointer-events:none;background:var(--card);color:var(--ink);border:1px solid var(--ring);
+  box-shadow:0 6px 20px rgba(0,0,0,.14);border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.4;
+  min-width:160px;opacity:0;transition:opacity .12s;z-index:30}
+.tip .row{display:flex;justify-content:space-between;gap:12px}
+.tip .row i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.split{display:grid;gap:12px}
+@media(min-width:640px){.split{grid-template-columns:1fr 1fr}}
+.stack{display:flex;height:34px;border-radius:8px;overflow:hidden;gap:2px;margin:10px 0 8px}
+.stack div{display:flex;align-items:center;padding:0 8px;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;min-width:0}
+.stack .dk{color:#0b0b0b}
+.stack-legend{display:grid;gap:6px;font-size:14px;margin:0}
+.stack-legend div{display:flex;justify-content:space-between;gap:12px}
+.stack-legend span:first-child{color:var(--ink2)}
+.stack-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+.stack-legend b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px;margin:0}
+.kv dt{color:var(--ink2)} .kv dd{margin:0;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.kv2{margin:0;font-size:14px}.kv2 dt{color:var(--ink2);font-size:13px;margin-top:10px}.kv2 dt:first-child{margin-top:0}.kv2 dd{margin:1px 0 0;font-weight:600}
+.prog{display:grid;gap:14px}
+.pr-row{display:grid;gap:4px}
+.pr-top{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.pr-top span:last-child{font-weight:700;color:var(--good);white-space:nowrap}
+.pr-bar{position:relative;height:22px}
+.pr-bar .base{position:absolute;top:10px;left:0;right:0;height:2px;background:var(--grid)}
+.pr-bar .seg{position:absolute;top:9px;height:4px;background:var(--s1);border-radius:2px;opacity:.45}
+.pr-bar .dot{position:absolute;top:4px;width:14px;height:14px;border-radius:50%;margin-left:-7px;border:2px solid var(--card)}
+.pr-meta{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 6px;text-align:right;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12px;color:var(--ink2);font-weight:600}
+tfoot td{font-weight:700;border-bottom:0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.quotes{display:grid;gap:10px}
+blockquote{margin:0;padding:12px 14px;border-left:3px solid var(--s1);background:var(--accent-soft);border-radius:0 12px 12px 0;font-size:15px}
+blockquote cite{display:block;font-style:normal;font-size:12px;color:var(--ink2);margin-top:4px}
+ul.ins{margin:0;padding-left:20px;display:grid;gap:8px}
+details{background:var(--card);border:1px solid var(--ring);border-radius:14px;padding:4px 16px}
+details+details{margin-top:10px}
+summary{cursor:pointer;font-weight:600;padding:12px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:20px;color:var(--muted)}
+details[open] summary::after{content:"–"}
+details p,details li{font-size:14px;color:var(--ink2)}
+details ul{padding-left:20px}
+.theme{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:25;border:1px solid var(--ring);
+  background:var(--card);color:var(--ink);border-radius:999px;width:44px;height:44px;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+footer{margin-top:24px;font-size:12px;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.callout{border-left:3px solid var(--s3);background:var(--card);border-radius:0 12px 12px 0;padding:12px 14px;font-size:14px;color:var(--ink2);margin-top:12px;border-top:1px solid var(--ring);border-right:1px solid var(--ring);border-bottom:1px solid var(--ring)}
+.callout b{color:var(--ink)}
+</style>
+</head>
+<body>
+<button class="theme" id="themeBtn" aria-label="Cambiar tema claro/oscuro">◐</button>
+<div class="wrap">
+<header>
+  <p class="eyebrow">Felipe · Coach10 · 1 jun – 9 oct 2026</p>
+  <h1>130 días, 90 entrenamientos y 23,5 kg menos</h1>
+</header>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="tablist" role="tablist">
+    <button class="tab" role="tab" id="t-resumen" aria-controls="resumen" data-tab="resumen">Resumen</button>
+    <button class="tab" role="tab" id="t-entreno" aria-controls="entreno" data-tab="entreno">Entreno</button>
+    <button class="tab" role="tab" id="t-andar" aria-controls="andar" data-tab="andar">Andar</button>
+    <button class="tab" role="tab" id="t-comida" aria-controls="comida" data-tab="comida">Comida</button>
+    <button class="tab" role="tab" id="t-balance" aria-controls="balance" data-tab="balance">Balance</button>
+    <button class="tab" role="tab" id="t-metodo" aria-controls="metodo" data-tab="metodo">Método</button>
+  </div>
+</nav>
+
+<!-- ============ RESUMEN ============ -->
+<div class="panel" role="tabpanel" id="resumen" aria-labelledby="t-resumen">
+<section>
+  <div class="card hero">
+    <div class="hero-main">
+      <div class="big">−23,5<small> kg</small></div>
+      <div class="weights"><span>De <b>153,2</b></span><span>→</span><span>a <b>129,7 kg</b></span></div>
+    </div>
+    <div class="track" aria-hidden="true"><span style="width:15.3%"></span></div>
+    <dl class="kv">
+      <dt>Peso corporal perdido</dt><dd>−15,3 %</dd>
+      <dt>Ritmo medio</dt><dd>−1,27 kg/semana</dd>
+      <dt>Semanas con las 5 sesiones del plan</dt><dd>15 de 18</dd>
+    </dl>
+  </div>
+  <div class="kpis k3">
+    <div class="kpi"><p class="l">Kilómetros totales</p><p class="v">~1.770 <small>km</small></p><p class="n">974 en bici · 796 andando</p></div>
+    <div class="kpi"><p class="l">Pasos</p><p class="v">~1 <small>millón</small></p><p class="n">1.007.500 estimados</p></div>
+    <div class="kpi"><p class="l">kcal entrenando</p><p class="v">~51.100</p><p class="n">rango 47.700–70.100</p></div>
+    <div class="kpi"><p class="l">kcal extra andando</p><p class="v">~55.800</p><p class="n">sobre lo que gastarías en reposo</p></div>
+    <div class="kpi"><p class="l">Tiempo entrenando</p><p class="v">~94 <small>h</small></p><p class="n">48 h bici · 46 h fuerza</p></div>
+    <div class="kpi"><p class="l">Peso movido</p><p class="v">273 <small>t</small></p><p class="n">1.385 series · 14.342 reps</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Kilómetros por mes</h2>
+  <p class="sub">Bici del gimnasio y pasos del día a día. Septiembre es tu mejor mes, gracias al salto a 10.500 pasos diarios.</p>
+  <div class="card">
+    <div class="legend"><span><i style="background:var(--s1)"></i>Bici</span><span><i style="background:var(--s3)"></i>Andando</span></div>
+    <div class="chart" id="cMonthKm"></div>
+    <p class="note">Octubre solo incluye del 1 al 9.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Lo que dicen los datos</h2>
+  <div class="card">
+    <ul class="ins">
+      <li><b>Constancia casi perfecta.</b> 90 sesiones en 130 días: 15 de las 18 semanas completas con las 5 sesiones del plan y las otras 3 con 4. Ni las vacaciones de agosto cortaron la racha.</li>
+      <li><b>Andar cuenta tanto como entrenar.</b> Tus pasos suman unas 55.800 kcal extra, algo más que el entrenamiento (≈42.000 kcal netas). Pasar de 6.500 a 10.500 pasos al día en septiembre supone unas 200 kcal más al día.</li>
+      <li><b>Ritmo de pérdida razonable.</b> −1,27 kg por semana es un 0,9 % de tu peso corporal, dentro del 0,5–1 % que se suele considerar sostenible.</li>
+      <li><b>La bici de 20 min está estabilizada en 7,0–7,7 km</b> desde septiembre. Si quieres seguir progresando, puedes preguntar a César o Mario por intervalos o más resistencia.</li>
+      <li><b>Espalda: el punto a vigilar.</b> Varias notas de elevaciones de piernas, oblicuos y peso muerto hablan de molestias en la zona media de la espalda.</li>
+      <li><b>Para afinar el próximo informe:</b> anota los km y las kcal de la bici en todas las sesiones (ahora solo el 35 % de los km son medidos) y añade una pesada semanal. Con solo dos pesos no se puede ver la curva.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>En tus palabras</h2>
+  <div class="quotes">
+    <blockquote>«Reactivar un cuerpo es más duro que correr una ultra hace 15 años.»<cite>8 de junio · bici 40 min</cite></blockquote>
+    <blockquote>«Me despierto antes del despertador, y disfruto salir…»<cite>10 de julio</cite></blockquote>
+    <blockquote>«Nada, una horita y 21,75 kilómetros, maravillosa sensación.»<cite>13 de septiembre · cardio largo</cite></blockquote>
+    <blockquote>«Subimos peso y bien, me siento más fuerte.»<cite>3 de octubre · hombros</cite></blockquote>
+  </div>
+</section>
+</div>
+
+<!-- ============ ENTRENO ============ -->
+<div class="panel" role="tabpanel" id="entreno" aria-labelledby="t-entreno" hidden>
+<section>
+  <div class="kpis k4" style="margin-top:0">
+    <div class="kpi"><p class="l">Sesiones</p><p class="v">90</p><p class="n">69 fuerza + bici · 21 cardio largo o caminata</p></div>
+    <div class="kpi"><p class="l">Km en bici</p><p class="v">974 <small>km</small></p><p class="n">340 anotados · 634 estimados</p></div>
+    <div class="kpi"><p class="l">kcal bici</p><p class="v">~27.400</p><p class="n">calibradas con tu bici</p></div>
+    <div class="kpi"><p class="l">kcal fuerza</p><p class="v">~23.700</p><p class="n">~40 min de fuerza por sesión</p></div>
+  </div>
+</section>
+<section>
+  <h2>Calorías por semana</h2>
+  <p class="sub">Entre 2.700 y 3.200 kcal por semana desde julio. Desde agosto la fuerza pesa casi tanto como el cardio.</p>
+  <div class="card">
+    <div class="legend"><span><i style="background:var(--s1)"></i>Bici</span><span><i style="background:var(--s2)"></i>Fuerza</span></div>
+    <div class="chart" id="cWeeks"></div>
+    <p class="note">Toca una barra para ver el detalle. La semana 19 (5–9 oct) está incompleta.</p>
+  </div>
+</section>
+<section>
+  <h2>Vas más rápido en la bici</h2>
+  <p class="sub">Velocidad media de las sesiones en las que anotaste los km en tu bici habitual: de 19,6 km/h en julio a unos 22 km/h ahora (+12 %).</p>
+  <div class="card">
+    <div class="legend"><span><i style="background:var(--s1);border-radius:50%"></i>Bloque final de 20 min</span><span><i style="background:transparent;border:2px solid var(--s1);border-radius:50%"></i>Sesión larga (40–65 min)</span></div>
+    <div class="chart" id="cSpeed"></div>
+  </div>
+</section>
+<section>
+  <h2>Ganando fuerza mientras pierdes peso</h2>
+  <p class="sub">Primera carga registrada frente a la actual, en tu gimnasio habitual. Ganar fuerza en pleno déficit suele indicar que estás conservando músculo.</p>
+  <div class="card prog" id="prog"></div>
+  <p class="note">Carga anotada en la app. En el press banca se suman los 20 kg de la barra, como apuntaste el 7 de octubre. En el resto no consta el peso de la barra. No se comparan las máquinas del gimnasio de vacaciones porque calibran distinto.</p>
+</section>
+<section>
+  <h2>Mes a mes</h2>
+  <div class="card scroll">
+    <table>
+      <thead><tr><th>Mes</th><th>Sesiones</th><th>Horas</th><th>Km bici</th><th>kcal</th><th>Series</th></tr></thead>
+      <tbody id="tMonths"></tbody><tfoot id="tTot"></tfoot>
+    </table>
+  </div>
+</section>
+</div>
+
+<!-- ============ ANDAR ============ -->
+<div class="panel" role="tabpanel" id="andar" aria-labelledby="t-andar" hidden>
+<section>
+  <div class="kpis" style="margin-top:0">
+    <div class="kpi"><p class="l"><i class="sw" style="background:var(--s3)"></i>Km andando</p><p class="v">~796 <small>km</small></p><p class="n">rango 760–833</p></div>
+    <div class="kpi"><p class="l">Pasos</p><p class="v">1.007.500</p><p class="n">en 131 días</p></div>
+    <div class="kpi"><p class="l">Antes · 1 jun–31 ago</p><p class="v">5,1 <small>km/día</small></p><p class="n">~6.500 pasos · 473 km</p></div>
+    <div class="kpi"><p class="l">Ahora · desde 1 sep</p><p class="v">8,3 <small>km/día</small></p><p class="n">~10.500 pasos · 324 km</p></div>
+  </div>
+</section>
+<section>
+  <h2>Kilómetros acumulados: bici y andando</h2>
+  <p class="sub">Desde septiembre andas unos 58 km a la semana, tanto o más que en bici (45–60 km semanales).</p>
+  <div class="card">
+    <div class="legend"><span><i style="background:var(--s1)"></i>Bici</span><span><i style="background:var(--s3)"></i>Andando</span></div>
+    <div class="chart" id="cKm"></div>
+  </div>
+</section>
+<section>
+  <h2>Pasos por mes</h2>
+  <div class="card scroll">
+    <table>
+      <thead><tr><th>Mes</th><th>Pasos/día</th><th>Pasos</th><th>Km</th><th>kcal extra</th></tr></thead>
+      <tbody id="tWalk"></tbody><tfoot id="tWalkTot"></tfoot>
+    </table>
+  </div>
+  <div class="callout"><b>De dónde salen estos km.</b> Tu móvil da 8,3 km/día con unos 10.500 pasos, es decir, una zancada de 0,79 m. Aplicada a ~6.500 pasos/día (1 jun–31 ago) y ~10.500 (desde el 1 sep) salen unos 796 km. Si antes eran 6.000 o 7.000 pasos, el total queda entre 760 y 833 km. La caminata del 16 de agosto ya está dentro de estos pasos.</div>
+</section>
+</div>
+
+<!-- ============ COMIDA ============ -->
+<div class="panel" role="tabpanel" id="comida" aria-labelledby="t-comida" hidden>
+<section>
+  <h2>Lo que comes según el plan</h2>
+  <p class="sub">4 comidas, cada una con una ración de hidrato, una de proteína y una de grasa, más verdura y 2 frutas. No hay registro diario, así que esto es la ingesta del plan con raciones típicas.</p>
+  <div class="split">
+    <div class="card">
+      <p class="l" style="margin:0;font-size:13px;color:var(--ink2)">Energía diaria estimada</p>
+      <p style="font-size:clamp(28px,8vw,34px);font-weight:700;margin:2px 0;letter-spacing:-.02em">~1.850 <small style="font-size:14px;color:var(--ink2)">kcal</small></p>
+      <p class="note" style="margin:0">entre 1.650 (pollo, merluza, aceite) y 2.100 (salmón, huevos, chocolate 85 %)</p>
+      <div class="stack" role="img" aria-label="Reparto: proteína 33 %, hidratos 37 %, grasas 30 %">
+        <div style="flex:33;background:var(--s7)">P 33 %</div>
+        <div class="dk" style="flex:37;background:var(--s4)">HC 37 %</div>
+        <div style="flex:30;background:var(--s5)">G 30 %</div>
+      </div>
+      <div class="stack-legend">
+        <div><span><i style="background:var(--s7)"></i>Proteína</span><b>~150 g · 1,2 g/kg</b></div>
+        <div><span><i style="background:var(--s4)"></i>Hidratos</span><b>~170 g</b></div>
+        <div><span><i style="background:var(--s5)"></i>Grasas</span><b>~62 g</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <p style="margin:0 0 8px;font-weight:600">Una ración por comida equivale a…</p>
+      <dl class="kv2">
+        <dt>Hidrato (~30 g HC)</dt><dd>58 g avena · 44 g arroz · 171 g patata</dd>
+        <dt>Proteína (~32 g)</dt><dd>140 g pollo · 316 g claras · 42 g whey</dd>
+        <dt>Grasa (~8 g)</dt><dd>8 g aceite · 16 g frutos secos · 49 g aguacate</dd>
+        <dt>Cada día</dt><dd>2 frutas · verdura al gusto · 2,5 L de agua</dd>
+      </dl>
+      <p class="note">Pesos en crudo, sin lácteos ni ultraprocesados.</p>
+    </div>
+  </div>
+</section>
+<section>
+  <h2>Frecuencias semanales del plan</h2>
+  <div class="card scroll">
+    <table>
+      <thead><tr><th>Alimento</th><th>Veces por semana</th></tr></thead>
+      <tbody>
+        <tr><td>Cereales</td><td>21</td></tr><tr><td>Verdura</td><td>14</td></tr><tr><td>Fruta</td><td>7–14</td></tr>
+        <tr><td>Huevo</td><td>4–5</td></tr><tr><td>Aves</td><td>3–4</td></tr><tr><td>Carnes rojas</td><td>2–3</td></tr>
+        <tr><td>Pescado</td><td>2</td></tr><tr><td>Legumbres</td><td>2</td></tr><tr><td>Marisco</td><td>¼</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</div>
+
+<!-- ============ BALANCE ============ -->
+<div class="panel" role="tabpanel" id="balance" aria-labelledby="t-balance" hidden>
+<section>
+  <h2>¿De dónde salen los 23,5 kg?</h2>
+  <p class="sub">Perder ese peso equivale a un déficit de unas 164.500 kcal, unas 1.265 kcal al día. Así se reparte entre lo que mueves y lo que comes.</p>
+  <div class="card">
+    <div class="stack" role="img" aria-label="Déficit diario: pasos 34 %, entreno 25 %, dieta 41 %">
+      <div style="flex:34;background:var(--s3)">Pasos 34 %</div>
+      <div style="flex:25;background:var(--s1)">Entreno 25 %</div>
+      <div class="dk" style="flex:41;background:var(--neutral)">Dieta 41 %</div>
+    </div>
+    <div class="stack-legend">
+      <div><span><i style="background:var(--s3)"></i>Pasos diarios (extra sobre reposo)</span><b>≈426 kcal/día</b></div>
+      <div><span><i style="background:var(--s1)"></i>Entrenamiento (neto)</span><b>≈321 kcal/día</b></div>
+      <div><span><i style="background:var(--neutral)"></i>Dieta, si no te movieras</span><b>≈518 kcal/día</b></div>
+      <div><span>Déficit total</span><b>≈1.265 kcal/día</b></div>
+    </div>
+    <p class="note">Sin entreno ni pasos, el plan de ~1.850 kcal solo te daría un déficit de unas 500 kcal al día, y habrías perdido unos 9–10 kg en lugar de 23,5. Ojo: incluso sin moverte darías algunos pasos (~3.000 al día), así que la parte de «pasos» es un máximo.</p>
+  </div>
+</section>
+<section>
+  <h2>Tu gasto diario, pieza a pieza</h2>
+  <p class="sub">Dos formas independientes de calcular el gasto diario dan casi lo mismo, así que las estimaciones se sostienen.</p>
+  <div class="card">
+    <div class="stack" role="img" aria-label="Gasto diario por componentes">
+      <div class="dk" style="flex:2320;background:var(--neutral)">Basal 2.320</div>
+      <div style="flex:185;background:var(--s7)"></div>
+      <div style="flex:426;background:var(--s3)"></div>
+      <div style="flex:321;background:var(--s1)"></div>
+    </div>
+    <div class="stack-legend">
+      <div><span><i style="background:var(--neutral)"></i>Metabolismo basal</span><b>≈2.320 kcal</b></div>
+      <div><span><i style="background:var(--s7)"></i>Digestión (10 % de lo que comes)</span><b>≈185 kcal</b></div>
+      <div><span><i style="background:var(--s3)"></i>Pasos</span><b>≈426 kcal</b></div>
+      <div><span><i style="background:var(--s1)"></i>Entrenamiento neto</span><b>≈321 kcal</b></div>
+      <div><span>Suma por componentes</span><b>≈3.250 kcal/día</b></div>
+      <div><span>Gasto deducido (1.850 de dieta + 1.265 de déficit)</span><b>≈3.115 kcal/día</b></div>
+    </div>
+    <p class="note">La diferencia es del 4 %, dentro del margen de error de cualquier estimación. El basal se ha calculado con Mifflin-St Jeor para tu peso medio del periodo (141 kg) y supuestos de 45 años y 180 cm.</p>
+  </div>
+</section>
+</div>
+
+<!-- ============ MÉTODO ============ -->
+<div class="panel" role="tabpanel" id="metodo" aria-labelledby="t-metodo" hidden>
+<section>
+  <details open>
+    <summary>Datos de partida</summary>
+    <ul>
+      <li>Base de datos <b>entrenamiento-coach10-2026-10-09.sqlite</b>: 5 tablas (meses 1 a 5), 568 registros, 1.385 series de fuerza con repeticiones y kg, y notas libres.</li>
+      <li>90 días con entrenamiento: 69 de fuerza + bici, 20 de cardio largo y 1 caminata (16 ago). El registro suelto del 18 de junio se anotó el día 19 y se cuenta en esa sesión.</li>
+      <li>Peso: solo hay dos datos, 153,2 kg (1 jun) y 129,7 kg (9 oct). Se reparte la bajada de forma lineal.</li>
+      <li>Pasos (indicados por ti): ~6.000–7.000 diarios del 1 jun al 31 ago y ~10.500 desde el 1 sep, con 8,3 km/día de media según el móvil.</li>
+      <li>Todo el cardio del gimnasio fue en bici estática, aunque la tabla diga remo, elíptica o escaladora (lo dicen tus notas).</li>
+      <li>Error de tecleo corregido: 224 kg en el jalón unilateral del 16 sep se toma como 22,4 kg.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Kilómetros</summary>
+    <ul>
+      <li><b>Bici:</b> 340 km salen de tus notas. El resto (≈634 km) se estima con la duración × tu velocidad en esas fechas, según las lecturas cercanas (±14 días). Para junio se supone una subida de 17,5 a 19,6 km/h. Los calentamientos van al 92 % de esa velocidad.</li>
+      <li>La bici de vacaciones (25 jul – 23 ago) marcaba un 30 % más de distancia. Se usa lo equivalente en tu bici habitual; con la de vacaciones serían unos 74 km más.</li>
+      <li><b>Andando:</b> zancada de 0,79 m (8,3 km ÷ 10.500 pasos) × pasos diarios × días: 92 días a 6.500 pasos + 39 días a 10.500. La caminata del 16 ago va incluida, por lo que no se suma aparte.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Calorías</summary>
+    <ul>
+      <li><b>Bici:</b> km × kcal/km calibradas con tu bici (27,3 en julio y 29,5 en sep–oct, por la mayor resistencia). La de vacaciones marcaba el doble (52–57 kcal/km) y se descarta. Total: ~27.400 kcal.</li>
+      <li><b>Fuerza:</b> los minutos salen de la hora a la que guardaste cada ejercicio (~40 min por sesión) × MET 3,5 × tu peso de ese día. Total: ~23.700 kcal.</li>
+      <li><b>Rango del entreno:</b> 47.700 kcal (MET 3,0 en fuerza) a 70.100 kcal (MET 5,0 en fuerza y 6,8 en bici). La cifra central, 51.100, está cerca del escenario prudente.</li>
+      <li><b>Andando:</b> coste neto de 0,5 kcal por kg y km (lo que se gasta por encima del reposo) × km × tu peso de cada día ≈ 55.800 kcal (53.200–58.400).</li>
+      <li><b>Neto del entreno</b> (≈42.000): lo gastado menos el basal que habrías gastado igualmente (Mifflin-St Jeor con 45 años y 180 cm supuestos).</li>
+      <li><b>Déficit:</b> 23,5 kg × ~7.000 kcal/kg. Es algo menos que la grasa pura (7.700) porque al principio también se pierde agua y glucógeno. Con 6.500–7.700 kcal/kg, el déficit queda entre 1.175 y 1.390 kcal/día.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Nutrición</summary>
+    <ul>
+      <li>Del PDF «Planificación Nutricional (19/05/26)»: 4 comidas con una ración de cada columna, verduras, 2 frutas obligatorias y 2,5 L de agua.</li>
+      <li>Raciones valoradas con tablas estándar (58 g de avena ≈ 225 kcal; 140 g de pechuga ≈ 155 kcal; 8 g de aceite = 72 kcal). Como lo sigues «sin ser súper estricto», la ingesta real puede variar ±10–15 %.</li>
+    </ul>
+  </details>
+  <footer>Generado el 9 de octubre de 2026. Las estimaciones son orientativas y no sustituyen el criterio de tu entrenador ni de tu nutricionista.</footer>
+</section>
+</div>
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+<script>
+const DATA = {"semanas": [{"sem": 1, "inicio": "2026-06-01", "c": 1186, "f": 1032, "km": 43.5, "n": 5, "min": 258.8}, {"sem": 2, "inicio": "2026-06-08", "c": 1277, "f": 1006, "km": 46.9, "n": 5, "min": 263.6}, {"sem": 3, "inicio": "2026-06-15", "c": 1369, "f": 944, "km": 50.2, "n": 5, "min": 262.9}, {"sem": 4, "inicio": "2026-06-22", "c": 1023, "f": 898, "km": 37.5, "n": 4, "min": 213.7}, {"sem": 5, "inicio": "2026-06-29", "c": 1492, "f": 883, "km": 54.8, "n": 5, "min": 263.8}, {"sem": 6, "inicio": "2026-07-06", "c": 1630, "f": 1092, "km": 60.1, "n": 5, "min": 301.9}, {"sem": 7, "inicio": "2026-07-13", "c": 1731, "f": 1284, "km": 62.9, "n": 5, "min": 332.9}, {"sem": 8, "inicio": "2026-07-20", "c": 1674, "f": 1085, "km": 60.6, "n": 5, "min": 303.7}, {"sem": 9, "inicio": "2026-07-27", "c": 1561, "f": 1483, "km": 56.1, "n": 5, "min": 337.6}, {"sem": 10, "inicio": "2026-08-03", "c": 1477, "f": 1603, "km": 52.7, "n": 4, "min": 338.8}, {"sem": 11, "inicio": "2026-08-10", "c": 1227, "f": 1665, "km": 43.6, "n": 5, "min": 320.2}, {"sem": 12, "inicio": "2026-08-17", "c": 1479, "f": 1587, "km": 52.0, "n": 4, "min": 334.9}, {"sem": 13, "inicio": "2026-08-24", "c": 1703, "f": 1480, "km": 59.5, "n": 5, "min": 344.4}, {"sem": 14, "inicio": "2026-08-31", "c": 1723, "f": 1240, "km": 59.8, "n": 5, "min": 313.8}, {"sem": 15, "inicio": "2026-09-07", "c": 1708, "f": 1352, "km": 58.8, "n": 5, "min": 323.7}, {"sem": 16, "inicio": "2026-09-14", "c": 1682, "f": 1270, "km": 57.6, "n": 5, "min": 316.2}, {"sem": 17, "inicio": "2026-09-21", "c": 1312, "f": 1541, "km": 44.5, "n": 5, "min": 315.0}, {"sem": 18, "inicio": "2026-09-28", "c": 1358, "f": 1395, "km": 46.0, "n": 5, "min": 299.0}, {"sem": 19, "inicio": "2026-10-05", "c": 791, "f": 846, "km": 26.8, "n": 3, "min": 181.6}], "meses": {"2026-06": {"n": 20, "km": 193.2, "kcal": 9146, "min": 1044.0, "series": 243, "ton": 44205}, "2026-07": {"n": 22, "km": 250.5, "kcal": 12313, "min": 1364.7, "series": 264, "ton": 41851}, "2026-08": {"n": 21, "km": 245.9, "kcal": 13947, "min": 1526.5, "series": 368, "ton": 85240}, "2026-09": {"n": 21, "km": 230.0, "kcal": 12395, "min": 1330.3, "series": 388, "ton": 79353}, "2026-10": {"n": 6, "km": 54.5, "kcal": 3288, "min": 361.0, "series": 122, "ton": 22532}}, "vel": [{"fecha": "2026-07-05", "v": 19.57, "min": 46}, {"fecha": "2026-07-12", "v": 20.3, "min": 60}, {"fecha": "2026-07-13", "v": 20.36, "min": 53.16}, {"fecha": "2026-07-21", "v": 20.28, "min": 41.43}, {"fecha": "2026-08-24", "v": 21.0, "min": 20}, {"fecha": "2026-08-26", "v": 21.0, "min": 20}, {"fecha": "2026-08-28", "v": 21.0, "min": 20}, {"fecha": "2026-08-29", "v": 21.09, "min": 28.45}, {"fecha": "2026-09-02", "v": 22.32, "min": 20.16}, {"fecha": "2026-09-05", "v": 21.55, "min": 20.05}, {"fecha": "2026-09-06", "v": 21.93, "min": 65}, {"fecha": "2026-09-07", "v": 22.43, "min": 20.06}, {"fecha": "2026-09-09", "v": 22.83, "min": 20}, {"fecha": "2026-09-11", "v": 22.8, "min": 20}, {"fecha": "2026-09-12", "v": 22.86, "min": 20}, {"fecha": "2026-09-13", "v": 21.75, "min": 60}, {"fecha": "2026-09-14", "v": 22.62, "min": 21.22}, {"fecha": "2026-09-16", "v": 22.53, "min": 20}, {"fecha": "2026-09-18", "v": 21.0, "min": 20}, {"fecha": "2026-09-19", "v": 21.54, "min": 20}, {"fecha": "2026-09-20", "v": 21.13, "min": 60}, {"fecha": "2026-09-21", "v": 21.06, "min": 20}, {"fecha": "2026-09-22", "v": 22.28, "min": 20.2}, {"fecha": "2026-09-23", "v": 21.56, "min": 20.04}, {"fecha": "2026-09-24", "v": 21.6, "min": 20}, {"fecha": "2026-09-25", "v": 21.39, "min": 20}, {"fecha": "2026-09-28", "v": 22.05, "min": 20}, {"fecha": "2026-09-30", "v": 22.92, "min": 20}, {"fecha": "2026-10-02", "v": 22.34, "min": 20.14}, {"fecha": "2026-10-03", "v": 22.14, "min": 20.08}, {"fecha": "2026-10-04", "v": 22.98, "min": 20}, {"fecha": "2026-10-06", "v": 20.98, "min": 20.33}, {"fecha": "2026-10-07", "v": 22.37, "min": 20.12}, {"fecha": "2026-10-09", "v": 21.33, "min": 20}], "cumDaily": [["2026-06-01", 12.1, 5.1], ["2026-06-02", 12.1, 10.3], ["2026-06-03", 16.9, 15.4], ["2026-06-04", 16.9, 20.6], ["2026-06-05", 18.3, 25.7], ["2026-06-06", 31.6, 30.8], ["2026-06-07", 43.5, 36.0], ["2026-06-08", 55.6, 41.1], ["2026-06-09", 55.6, 46.2], ["2026-06-10", 63.0, 51.4], ["2026-06-11", 63.0, 56.5], ["2026-06-12", 70.5, 61.7], ["2026-06-13", 78.1, 66.8], ["2026-06-14", 90.4, 71.9], ["2026-06-15", 102.8, 77.1], ["2026-06-16", 102.8, 82.2], ["2026-06-17", 110.5, 87.3], ["2026-06-18", 110.5, 92.5], ["2026-06-19", 118.2, 97.6], ["2026-06-20", 126.0, 102.8], ["2026-06-21", 140.6, 107.9], ["2026-06-22", 140.6, 113.0], ["2026-06-23", 140.6, 118.2], ["2026-06-24", 148.6, 123.3], ["2026-06-25", 148.6, 128.5], ["2026-06-26", 150.1, 133.6], ["2026-06-27", 158.2, 138.7], ["2026-06-28", 178.1, 143.9], ["2026-06-29", 178.1, 149.0], ["2026-06-30", 193.2, 154.1], ["2026-07-01", 193.2, 159.3], ["2026-07-02", 201.4, 164.4], ["2026-07-03", 209.6, 169.6], ["2026-07-04", 217.9, 174.7], ["2026-07-05", 232.9, 179.8], ["2026-07-06", 232.9, 185.0], ["2026-07-07", 248.0, 190.1], ["2026-07-08", 256.2, 195.2], ["2026-07-09", 256.2, 200.4], ["2026-07-10", 264.5, 205.5], ["2026-07-11", 272.7, 210.7], ["2026-07-12", 293.0, 215.8], ["2026-07-13", 311.1, 220.9], ["2026-07-14", 311.1, 226.1], ["2026-07-15", 311.1, 231.2], ["2026-07-16", 319.3, 236.4], ["2026-07-17", 327.6, 241.5], ["2026-07-18", 335.8, 246.6], ["2026-07-19", 355.9, 251.8], ["2026-07-20", 355.9, 256.9], ["2026-07-21", 369.9, 262.0], ["2026-07-22", 369.9, 267.2], ["2026-07-23", 378.3, 272.3], ["2026-07-24", 386.6, 277.5], ["2026-07-25", 396.3, 282.6], ["2026-07-26", 416.6, 287.7], ["2026-07-27", 416.6, 292.9], ["2026-07-28", 425.9, 298.0], ["2026-07-29", 434.7, 303.1], ["2026-07-30", 434.7, 308.3], ["2026-07-31", 443.7, 313.4], ["2026-08-01", 452.4, 318.6], ["2026-08-02", 472.7, 323.7], ["2026-08-03", 482.1, 328.8], ["2026-08-04", 482.1, 334.0], ["2026-08-05", 482.1, 339.1], ["2026-08-06", 491.4, 344.3], ["2026-08-07", 500.7, 349.4], ["2026-08-08", 500.7, 354.5], ["2026-08-09", 525.4, 359.7], ["2026-08-10", 525.4, 364.8], ["2026-08-11", 535.8, 369.9], ["2026-08-12", 535.8, 375.1], ["2026-08-13", 546.1, 380.2], ["2026-08-14", 558.6, 385.4], ["2026-08-15", 569.0, 390.5], ["2026-08-16", 569.0, 395.6], ["2026-08-17", 569.0, 400.8], ["2026-08-18", 578.0, 405.9], ["2026-08-19", 586.7, 411.0], ["2026-08-20", 586.7, 416.2], ["2026-08-21", 586.7, 421.3], ["2026-08-22", 595.4, 426.5], ["2026-08-23", 621.0, 431.6], ["2026-08-24", 629.6, 436.7], ["2026-08-25", 629.6, 441.9], ["2026-08-26", 638.3, 447.0], ["2026-08-27", 638.3, 452.2], ["2026-08-28", 647.0, 457.3], ["2026-08-29", 658.6, 462.4], ["2026-08-30", 680.5, 467.6], ["2026-08-31", 689.5, 472.7], ["2026-09-01", 689.5, 481.0], ["2026-09-02", 698.7, 489.3], ["2026-09-03", 698.7, 497.6], ["2026-09-04", 707.7, 505.9], ["2026-09-05", 716.6, 514.2], ["2026-09-06", 740.3, 522.5], ["2026-09-07", 749.5, 530.8], ["2026-09-08", 749.5, 539.1], ["2026-09-09", 758.8, 547.4], ["2026-09-10", 758.8, 555.7], ["2026-09-11", 768.1, 564.0], ["2026-09-12", 777.4, 572.3], ["2026-09-13", 799.2, 580.6], ["2026-09-14", 808.8, 588.9], ["2026-09-15", 808.8, 597.2], ["2026-09-16", 818.0, 605.5], ["2026-09-17", 818.0, 613.8], ["2026-09-18", 826.7, 622.1], ["2026-09-19", 835.6, 630.4], ["2026-09-20", 856.7, 638.7], ["2026-09-21", 865.4, 647.0], ["2026-09-22", 874.6, 655.3], ["2026-09-23", 883.5, 663.6], ["2026-09-24", 892.4, 671.9], ["2026-09-25", 901.2, 680.2], ["2026-09-26", 901.2, 688.5], ["2026-09-27", 901.2, 696.8], ["2026-09-28", 910.2, 705.1], ["2026-09-29", 910.2, 713.4], ["2026-09-30", 919.6, 721.7], ["2026-10-01", 919.6, 730.0], ["2026-10-02", 928.7, 738.3], ["2026-10-03", 937.8, 746.6], ["2026-10-04", 947.2, 754.9], ["2026-10-05", 947.2, 763.2], ["2026-10-06", 956.1, 771.5], ["2026-10-07", 965.2, 779.8], ["2026-10-08", 965.2, 788.1], ["2026-10-09", 974.0, 796.4]], "walk": {"months": {"2026-06": {"pasos": 195000, "km": 154.1, "kcal": 11605, "dias": 30}, "2026-07": {"pasos": 201500, "km": 159.3, "kcal": 11553, "dias": 31}, "2026-08": {"pasos": 201500, "km": 159.3, "kcal": 11107, "dias": 31}, "2026-09": {"pasos": 315000, "km": 249.0, "kcal": 16677, "dias": 30}, "2026-10": {"pasos": 94500, "km": 74.7, "kcal": 4871, "dias": 9}}}};
+const fmt=(n,d=0)=>{const s=Math.abs(Number(n)).toFixed(d);let [i,f]=s.split('.');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,'.');return (Number(n)<0?'−':'')+i+(f?','+f:'')};
+const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const fdate=s=>{const [y,m,d]=s.split('-').map(Number);return d+' '+MES[m-1]};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function txt(parent,x,y,s,o={}){const t=el('text',Object.assign({x,y,'font-size':11,fill:css('--muted')},o),parent);t.textContent=s;return t}
+const tip=document.getElementById('tip');
+function showTip(html,host,x,y){
+  tip.innerHTML=html;tip.style.opacity=1;
+  const r=host.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;
+  let left=r.left+scrollX+x-tw/2;left=Math.max(8,Math.min(left,scrollX+document.documentElement.clientWidth-tw-8));
+  let top=r.top+scrollY+y-th-12;if(top<scrollY+60)top=r.top+scrollY+y+16;
+  tip.style.left=left+'px';tip.style.top=top+'px';
+}
+function hideTip(){tip.style.opacity=0}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.chart'))hideTip()});
+function niceStep(v){const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+function niceMax(v){return niceStep(v/4)*4}
+const tday=s=>{const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};
+function yAxis(svg,m,W,y,max,f){for(let i=0;i<=4;i++){const v=max*i/4;el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:i?css('--grid'):css('--axis')},svg);txt(svg,m.l-6,y(v)+4,f(v),{'text-anchor':'end'})}}
+const kfmt=v=>v>=1000?fmt(v/1000,v%1000?1:0)+'k':fmt(v);
+function roundTop(x,y,w,h,r){r=Math.min(r,w/2,h);return `M${x},${y+h} V${y+r} Q${x},${y} ${x+r},${y} H${x+w-r} Q${x+w},${y} ${x+w},${y+r} V${y+h} Z`}
+function bindHover(hit,on,off){hit.addEventListener('pointerenter',on);hit.addEventListener('pointerdown',on);hit.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')off()})}
+
+/* stacked bars generic: rows [{label, parts:[v1,v2], tip}] */
+function stackedBars(hostId,rows,colors,opts={}){
+  const host=document.getElementById(hostId);host.innerHTML='';
+  const W=host.clientWidth;if(!W)return;
+  const H=opts.h?opts.h(W):Math.max(220,Math.min(300,W*.55)),m={l:40,r:6,t:opts.valLabels?22:10,b:26};
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':opts.aria||''},host);
+  const max=niceMax(Math.max(...rows.map(r=>r.parts.reduce((a,b)=>a+b,0))));
+  const iw=W-m.l-m.r,ih=H-m.t-m.b,bw=iw/rows.length,barW=Math.min(opts.maxW||999,Math.max(6,bw-Math.max(2,bw*.28)));
+  const y=v=>m.t+ih-v/max*ih;
+  yAxis(svg,m,W,y,max,kfmt);
+  const groups=[];
+  rows.forEach((r,i)=>{
+    const x=m.l+i*bw+(bw-barW)/2,g=el('g',{},svg);groups.push(g);let acc=0;
+    r.parts.forEach((v,j)=>{const y0=y(acc),y1=y(acc+v);const h=Math.max(0,y0-y1-(j?2:0));
+      if(j===r.parts.length-1)el('path',{d:roundTop(x,y1,barW,h,4),fill:colors[j]},g);else el('rect',{x,y:y1,width:barW,height:h,fill:colors[j]},g);acc+=v});
+    if(opts.valLabels)txt(svg,x+barW/2,y(acc)-6,fmt(acc),{'text-anchor':'middle',fill:css('--ink2'),'font-weight':600});
+    if(opts.xEvery?(i%opts.xEvery(W,rows.length)===0||i===rows.length-1):true)txt(svg,x+barW/2,H-8,r.label,{'text-anchor':'middle'});
+    const hit=el('rect',{x:m.l+i*bw,y:m.t,width:bw,height:ih,fill:'transparent',style:'cursor:pointer'},svg);
+    bindHover(hit,()=>{groups.forEach(o=>o.style.opacity=o===g?1:.45);showTip(r.tip,host,(x+barW/2)*host.clientWidth/W,y(acc)*host.clientWidth/W)},
+      ()=>{groups.forEach(o=>o.style.opacity=1);hideTip()});
+  });
+}
+function drawWeeks(){
+  const c1=css('--s1'),c2=css('--s2');
+  stackedBars('cWeeks',DATA.semanas.map(w=>({label:'S'+w.sem,parts:[w.c,w.f],
+    tip:`<b>Semana ${w.sem}</b> · desde ${fdate(w.inicio)}<div class="row"><span><i style="background:${c1}"></i>Bici</span><b>${fmt(w.c)} kcal</b></div><div class="row"><span><i style="background:${c2}"></i>Fuerza</span><b>${fmt(w.f)} kcal</b></div><div class="row"><span>Total</span><b>${fmt(w.c+w.f)} kcal</b></div><div class="row"><span>Sesiones · km bici</span><b>${w.n} · ${fmt(w.km,1)}</b></div>`})),
+    [c1,c2],{aria:'Calorías por semana',xEvery:(W,n)=>Math.ceil(n/(W<480?6:10))});
+}
+const MNAME={'2026-06':'Jun','2026-07':'Jul','2026-08':'Ago','2026-09':'Sep','2026-10':'Oct*'};
+function drawMonthKm(){
+  const c1=css('--s1'),c3=css('--s3');
+  stackedBars('cMonthKm',Object.keys(DATA.meses).map(k=>{const b=DATA.meses[k].km,w=DATA.walk.months[k].km;return {label:MNAME[k],parts:[b,w],
+    tip:`<b>${MNAME[k].replace('*',' (1–9)')}</b><div class="row"><span><i style="background:${c1}"></i>Bici</span><b>${fmt(b)} km</b></div><div class="row"><span><i style="background:${c3}"></i>Andando</span><b>${fmt(w)} km</b></div><div class="row"><span>Total</span><b>${fmt(b+w)} km</b></div>`}}),
+    [c1,c3],{aria:'Kilómetros por mes',maxW:56,valLabels:true,h:W=>Math.max(220,Math.min(280,W*.6))});
+}
+
+/* cumulative km two lines */
+const D0=Date.UTC(2026,5,1),D1=Date.UTC(2026,9,9);
+function drawKm(){
+  const host=document.getElementById('cKm');host.innerHTML='';const W=host.clientWidth;if(!W)return;
+  const H=Math.max(220,Math.min(300,W*.55)),m={l:44,r:12,t:16,b:26};
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Kilómetros acumulados en bici y andando'},host);
+  const days=DATA.cumDaily;const max=niceMax(Math.max(days[days.length-1][1],days[days.length-1][2]));
+  const x=t=>m.l+(t-D0)/(D1-D0)*(W-m.l-m.r),y=v=>m.t+(H-m.t-m.b)*(1-v/max);
+  yAxis(svg,m,W,y,max,v=>fmt(v));
+  [['2026-06-01','jun'],['2026-07-01','jul'],['2026-08-01','ago'],['2026-09-01','sep'],['2026-10-01','oct']].forEach(([d,l])=>txt(svg,x(tday(d)),H-8,l));
+  const sx=x(tday('2026-09-01'));el('line',{x1:sx,x2:sx,y1:m.t,y2:H-m.b,stroke:css('--axis'),'stroke-dasharray':'3 3'},svg);
+  txt(svg,sx+4,H-m.b-6,'10.500 pasos/día →',{fill:css('--ink2')});
+  const series=[[1,css('--s1'),'Bici'],[2,css('--s3'),'Andando']];
+  series.forEach(([idx,col])=>{let d='';days.forEach((p,i)=>d+=(i?' L':'M')+x(tday(p[0]))+','+y(p[idx]));
+    el('path',{d,fill:'none',stroke:col,'stroke-width':2,'stroke-linejoin':'round'},svg)});
+  const last=days[days.length-1];const lx=x(tday(last[0]));
+  const yb=y(last[1]),yw=y(last[2]);const sep=Math.abs(yb-yw)<16;
+  series.forEach(([idx,col,name])=>{const yy=y(last[idx]);el('circle',{cx:lx,cy:yy,r:4.5,fill:col,stroke:css('--card'),'stroke-width':2},svg);
+    let ly=yy+(idx===1?-8:14);if(sep)ly=idx===1?Math.min(yb,yw)-8:Math.max(yb,yw)+16;
+    txt(svg,lx-8,ly,name+' '+fmt(last[idx])+' km',{'text-anchor':'end','font-size':12,'font-weight':700,fill:css('--ink')})});
+  const cross=el('line',{y1:m.t,y2:H-m.b,stroke:css('--axis'),opacity:0},svg);
+  const dots=series.map(([,col])=>el('circle',{r:5,fill:col,stroke:css('--card'),'stroke-width':2,opacity:0},svg));
+  const ov=el('rect',{x:m.l,y:m.t,width:W-m.l-m.r,height:H-m.t-m.b,fill:'transparent'},svg);
+  const move=e=>{const r=svg.getBoundingClientRect();const px=(e.clientX-r.left)*W/r.width;
+    const i=Math.max(0,Math.min(days.length-1,Math.round((px-m.l)/(W-m.l-m.r)*(days.length-1))));const p=days[i],cx=x(tday(p[0]));
+    cross.setAttribute('x1',cx);cross.setAttribute('x2',cx);cross.setAttribute('opacity',1);
+    dots.forEach((d,j)=>{d.setAttribute('cx',cx);d.setAttribute('cy',y(p[j+1]));d.setAttribute('opacity',1)});
+    showTip(`<b>${fdate(p[0])}</b><div class="row"><span><i style="background:${css('--s1')}"></i>Bici</span><b>${fmt(p[1])} km</b></div><div class="row"><span><i style="background:${css('--s3')}"></i>Andando</span><b>${fmt(p[2])} km</b></div><div class="row"><span>Total</span><b>${fmt(p[1]+p[2])} km</b></div>`,host,cx*r.width/W,Math.min(y(p[1]),y(p[2]))*r.height/H)};
+  ov.addEventListener('pointermove',move);ov.addEventListener('pointerdown',move);
+  ov.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){cross.setAttribute('opacity',0);dots.forEach(d=>d.setAttribute('opacity',0));hideTip()}});
+}
+
+/* speed */
+function drawSpeed(){
+  const host=document.getElementById('cSpeed');host.innerHTML='';const W=host.clientWidth;if(!W)return;
+  const H=Math.max(200,Math.min(260,W*.5)),m={l:40,r:12,t:14,b:26};
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Velocidad media en bici'},host);
+  const lo=18,hi=24,T0=Date.UTC(2026,6,1);const x=t=>m.l+(t-T0)/(D1-T0)*(W-m.l-m.r),y=v=>m.t+(H-m.t-m.b)*(1-(v-lo)/(hi-lo));
+  for(let v=lo;v<=hi;v+=2){el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:v===lo?css('--axis'):css('--grid')},svg);txt(svg,m.l-6,y(v)+4,v,{'text-anchor':'end'})}
+  [['2026-07-01','jul'],['2026-08-01','ago'],['2026-09-01','sep'],['2026-10-01','oct']].forEach(([d,l])=>txt(svg,x(tday(d)),H-8,l));
+  const vx1=x(tday('2026-07-25')),vx2=x(tday('2026-08-23'));
+  el('rect',{x:vx1,y:m.t,width:vx2-vx1,height:H-m.t-m.b,fill:css('--grid'),opacity:.5},svg);
+  txt(svg,(vx1+vx2)/2,m.t+14,'vacaciones',{'text-anchor':'middle'});
+  DATA.vel.forEach(p=>{const cx=x(tday(p.fecha)),cy=y(p.v),long=p.min>35;
+    el('circle',{cx,cy,r:5,fill:long?css('--card'):css('--s1'),stroke:long?css('--s1'):css('--card'),'stroke-width':2},svg);
+    const hit=el('circle',{cx,cy,r:12,fill:'transparent'},svg);
+    bindHover(hit,()=>showTip(`<b>${fdate(p.fecha)}</b><div class="row"><span>Velocidad</span><b>${fmt(p.v,1)} km/h</b></div><div class="row"><span>Duración</span><b>${fmt(p.min)} min</b></div>`,host,cx*host.clientWidth/W,cy*host.clientWidth/W),hideTip)});
+  txt(svg,x(tday('2026-07-05'))+8,y(19.57)+16,'19,6',{fill:css('--ink2')});
+  txt(svg,W-m.r,y(23)-6,'≈22 km/h',{'text-anchor':'end',fill:css('--ink2')});
+}
+
+const PROG=[
+  ['Prensa de piernas',30,66,'3 jun','6 oct'],
+  ['Press banca con barra (barra incluida)',30,50,'2 jul','7 oct'],
+  ['Peso muerto rumano con barra',10,20,'31 jul','6 oct'],
+  ['Curl de bíceps con barra',10,20,'26 ago','4 oct'],
+  ['Press militar sentado con barra',30,40,'24 sep','3 oct'],
+  ['Extensión de tríceps en polea',18.5,23,'24 ago','19 sep'],
+  ['Jalón al pecho',30,36,'3 jun','9 oct'],
+  ['Remo con barra inclinado',30,35,'23 sep','9 oct'],
+];
+function drawProg(){
+  const host=document.getElementById('prog');host.innerHTML='';const max=70;
+  PROG.forEach(([n,a,b,da,db])=>{const pct=Math.round((b/a-1)*100);const row=document.createElement('div');row.className='pr-row';
+    row.innerHTML=`<div class="pr-top"><span>${n}</span><span>+${pct} %</span></div><div class="pr-bar"><div class="base"></div><div class="seg" style="left:${a/max*100}%;width:${(b-a)/max*100}%"></div><div class="dot" style="left:${a/max*100}%;background:var(--muted)"></div><div class="dot" style="left:${b/max*100}%;background:var(--s1)"></div></div><div class="pr-meta">${fmt(a,a%1?1:0)} kg (${da}) → <b style="color:var(--ink)">${fmt(b,b%1?1:0)} kg</b> (${db})</div>`;
+    host.appendChild(row)});
+}
+function drawTables(){
+  const names={'2026-06':'Junio','2026-07':'Julio','2026-08':'Agosto','2026-09':'Septiembre','2026-10':'Octubre (1–9)'};
+  let tb='',T={n:0,min:0,km:0,kcal:0,series:0};
+  for(const k in DATA.meses){const v=DATA.meses[k];for(const t in T)T[t]+=v[t];
+    tb+=`<tr><td>${names[k]}</td><td>${v.n}</td><td>${fmt(v.min/60,1)}</td><td>${fmt(v.km)}</td><td>${fmt(v.kcal)}</td><td>${fmt(v.series)}</td></tr>`}
+  document.getElementById('tMonths').innerHTML=tb;
+  document.getElementById('tTot').innerHTML=`<tr><td>Total</td><td>${T.n}</td><td>${fmt(T.min/60)}</td><td>${fmt(T.km)}</td><td>${fmt(T.kcal)}</td><td>${fmt(T.series)}</td></tr>`;
+  let tw='',U={pasos:0,km:0,kcal:0,dias:0};
+  for(const k in DATA.walk.months){const v=DATA.walk.months[k];for(const t in U)U[t]+=v[t];
+    tw+=`<tr><td>${names[k]}</td><td>${fmt(v.pasos/v.dias)}</td><td>${fmt(v.pasos)}</td><td>${fmt(v.km)}</td><td>${fmt(v.kcal)}</td></tr>`}
+  document.getElementById('tWalk').innerHTML=tw;
+  document.getElementById('tWalkTot').innerHTML=`<tr><td>Total</td><td>${fmt(U.pasos/U.dias)}</td><td>${fmt(U.pasos)}</td><td>${fmt(U.km)}</td><td>${fmt(U.kcal)}</td></tr>`;
+}
+
+/* tabs */
+const DRAW={resumen:[drawMonthKm],entreno:[drawWeeks,drawSpeed],andar:[drawKm],comida:[],balance:[],metodo:[]};
+const tabs=[...document.querySelectorAll('.tab')];let current='resumen';
+function show(id,focus){
+  if(!DRAW[id])id='resumen';current=id;hideTip();
+  tabs.forEach(t=>{const on=t.dataset.tab===id;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;document.getElementById(t.dataset.tab).hidden=!on;
+    if(on){t.scrollIntoView({block:'nearest',inline:'nearest'});if(focus)t.focus()}});
+  DRAW[id].forEach(f=>f());
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+}
+tabs.forEach((t,i)=>{
+  t.addEventListener('click',()=>{show(t.dataset.tab);window.scrollTo({top:0})});
+  t.addEventListener('keydown',e=>{let j=null;if(e.key==='ArrowRight')j=(i+1)%tabs.length;if(e.key==='ArrowLeft')j=(i-1+tabs.length)%tabs.length;if(j!==null){e.preventDefault();show(tabs[j].dataset.tab,true)}});
+});
+function redraw(){DRAW[current].forEach(f=>f())}
+drawProg();drawTables();
+let rt;new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>{hideTip();redraw()},120)}).observe(document.querySelector('.wrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.setAttribute('content',dark?'#f9f9f7':'#0d0d0d'));
+  try{localStorage.setItem('theme',r.dataset.theme)}catch(e){}redraw();
+});
+try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+show((location.hash||'#resumen').slice(1));
+</script>
+</body>
+</html>
