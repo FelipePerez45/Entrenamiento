@@ -350,6 +350,10 @@ function closeEjercicio() {
   // Limpia el iframe para parar el vídeo
   $('#ej-video-wrap').innerHTML = '';
   STATE.ejercicioId = null;
+  // Repinta el listado del día para que el ejercicio recién guardado salga en verde
+  // (y el ✓ del chip del día) sin tener que cambiar de día.
+  renderDiaChips();
+  renderEjerciciosDia();
 }
 
 function loadSesionDelDia() {
